@@ -1,0 +1,1739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Service Telemetry Archive — checkout-api / 2026-05-17 14:00Z</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Jost:wght@400;500&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+  :root {
+    --primary: #604041;
+    --secondary: #7E635F;
+    --accent: #D34B46;
+    --background: #1F1C1A;
+    --surface: #2F2E2D;
+    --text: #E6D2BE;
+    --muted: #AF988F;
+    --border: #3A312E;
+    --error: #D34B46;
+    --success: #6F8A6F;
+    --warning: #E48282;
+
+    --font-display: 'Jost', 'Futura', 'Avenir', sans-serif;
+    --font-body: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+    --font-mono: 'IBM Plex Mono', 'JetBrains Mono', 'Courier New', monospace;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+
+  body {
+    background: var(--background);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.55;
+    min-height: 100vh;
+    background-image:
+      radial-gradient(ellipse 1200px 600px at 50% -200px, rgba(96,64,65,0.06), transparent 70%);
+  }
+
+  .ambient { max-width: 1320px; margin: 0 auto; padding: 36px 24px 28px; }
+
+  /* ============ MASTHEAD ============ */
+  .masthead {
+    background: var(--primary);
+    padding: 20px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 28px;
+    border: 1px solid var(--border);
+    border-bottom: none;
+  }
+
+  .title-friendly {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 1.95rem;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    color: var(--text);
+    text-transform: lowercase;
+    margin: 0;
+  }
+  .title-friendly-md { font-size: 1.0625rem; line-height: 1.25; }
+
+  .masthead-meta { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+  .meta-block { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+
+  .caps-label {
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text);
+    opacity: 0.68;
+  }
+
+  .caps-value {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text);
+  }
+
+  /* ============ STENCIL OUTLINE ============ */
+  .stencil {
+    color: transparent;
+    -webkit-text-stroke: 1px var(--text);
+  }
+
+  /* ============ INDICATOR PIPS ============ */
+  .pip-cluster { display: flex; align-items: center; gap: 5px; }
+
+  .pip {
+    display: inline-block;
+    width: 7px; height: 7px;
+    border-radius: 9999px;
+    background: var(--secondary);
+    box-shadow: inset 0 0 0 1px var(--border);
+    flex-shrink: 0;
+  }
+  .pip.on { background: var(--text); box-shadow: inset 0 0 0 1px rgba(0,0,0,0.2); }
+  .pip.warn { background: var(--warning); }
+
+  .pip-label {
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text);
+    margin-right: 10px;
+  }
+  .pip-label:last-child { margin-right: 0; }
+
+  /* ============ DEC-RED STRIPE (appearance #1 of 2) ============ */
+  .accent-stripe { height: 3px; background: var(--accent); }
+
+  /* ============ SUB-NAV ============ */
+  .subnav {
+    background: var(--secondary);
+    display: flex;
+    gap: 28px;
+    padding: 13px 28px;
+    border: 1px solid var(--border);
+    border-top: none;
+    flex-wrap: wrap;
+  }
+
+  .subnav-item {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    color: var(--text);
+    text-transform: uppercase;
+    cursor: pointer;
+    text-decoration: none;
+    padding: 2px 0;
+  }
+  .subnav-item:not(.active) { opacity: 0.75; }
+  .subnav-item:not(.active):hover { opacity: 1; }
+  .subnav-item.active {
+    color: transparent;
+    -webkit-text-stroke: 1px var(--text);
+    opacity: 1;
+  }
+
+  /* ============ GRID ============ */
+  .content-grid {
+    margin-top: 20px;
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    gap: 20px;
+  }
+
+  .module {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .col-3 { grid-column: span 3; }
+  .col-6 { grid-column: span 6; }
+  .col-9 { grid-column: span 9; }
+
+  .module-masthead {
+    padding: 10px 18px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .module-masthead-primary { background: var(--primary); }
+  .module-masthead-secondary { background: var(--secondary); }
+  .module-body { padding: 18px; flex: 1; }
+  .module-body-tight { padding: 14px 18px; }
+
+  .module-aux {
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text);
+    opacity: 0.78;
+  }
+  .module-aux.warn { color: var(--warning); opacity: 1; }
+  .module-aux.go { color: var(--success); opacity: 1; }
+
+  /* ============ VITALS — 2x3 KPI GRID ============ */
+  .vitals-summary {
+    font-family: var(--font-body);
+    font-size: 0.8125rem;
+    line-height: 1.55;
+    color: var(--text);
+    opacity: 0.80;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 0;
+  }
+
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+  }
+
+  .kpi-cell {
+    padding: 12px 14px 10px 0;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .kpi-cell:nth-child(2n) { padding-left: 14px; padding-right: 0; border-left: 1px solid var(--border); }
+  .kpi-cell:nth-last-child(-n+2) { border-bottom: none; padding-bottom: 0; }
+
+  .kpi-label {
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text);
+    opacity: 0.70;
+  }
+
+  .kpi-state {
+    font-family: var(--font-mono);
+    font-size: 0.5625rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--success);
+  }
+  .kpi-state.warn { color: var(--warning); }
+
+  .kpi-value {
+    font-family: var(--font-mono);
+    font-size: 1.25rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    color: var(--text);
+    line-height: 1;
+    margin-top: 2px;
+  }
+  .kpi-value.warn { color: var(--warning); }
+
+  .kpi-value-unit {
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-left: 4px;
+  }
+
+  /* ============ CHARTS ============ */
+  .chart-surface { width: 100%; height: auto; display: block; }
+
+  .chart-axis-label {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.10em;
+    fill: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .chart-grid-line { stroke: var(--border); stroke-width: 1; }
+  .chart-baseline { stroke: var(--secondary); stroke-width: 1; }
+  .chart-line { stroke: var(--text); stroke-width: 1.5; fill: none; }
+  .chart-line-muted { stroke: var(--muted); stroke-width: 1; fill: none; stroke-dasharray: 3 2; opacity: 0.7; }
+  .chart-marker { fill: var(--text); }
+  .chart-aos-los { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 2 3; opacity: 0.6; }
+  .chart-bar-2xx { fill: var(--muted); }
+  .chart-bar-4xx { fill: var(--warning); opacity: 0.7; }
+  .chart-bar-5xx { fill: var(--warning); }
+  .chart-bar.selected { stroke: var(--text); stroke-width: 2; }
+
+  .chart-bar-value {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.06em;
+    fill: var(--text);
+    text-anchor: middle;
+  }
+
+  /* ============ TRACE WATERFALL ============ */
+  .trace-ruler {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    padding: 6px 0 8px;
+    border-bottom: 1px solid var(--secondary);
+    margin-bottom: 2px;
+  }
+
+  .trace-ruler-labels {
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+    padding-right: 16px;
+  }
+
+  .trace-ruler-axis { position: relative; height: 16px; font-family: var(--font-mono); }
+
+  .trace-ruler-tick {
+    position: absolute;
+    top: 0;
+    font-size: 0.625rem;
+    letter-spacing: 0.10em;
+    color: var(--muted);
+    transform: translateX(-50%);
+  }
+  .trace-ruler-tick:first-child { transform: translateX(0); }
+  .trace-ruler-tick:last-child { transform: translateX(-100%); }
+
+  .trace-row {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    padding: 7px 0;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+  }
+  .trace-row:hover { background: rgba(96, 64, 65, 0.08); }
+  .trace-row.open { background: rgba(96, 64, 65, 0.10); }
+
+  .trace-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    padding-right: 16px;
+    font-family: var(--font-mono);
+    min-width: 0;
+    position: relative;
+  }
+
+  .trace-name {
+    font-size: 0.75rem;
+    letter-spacing: 0.03em;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .trace-row.indent-1 .trace-name { padding-left: 14px; }
+  .trace-row.indent-2 .trace-name { padding-left: 28px; }
+
+  .trace-name::before {
+    content: "";
+    display: inline-block;
+    width: 8px;
+    height: 1px;
+    background: var(--muted);
+    vertical-align: middle;
+    margin-right: 6px;
+    margin-left: -14px;
+  }
+  .trace-row.indent-0 .trace-name::before { display: none; }
+
+  .trace-service {
+    font-size: 0.5625rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .trace-row.indent-1 .trace-service { padding-left: 14px; }
+  .trace-row.indent-2 .trace-service { padding-left: 28px; }
+
+  .trace-bar-container {
+    position: relative;
+    height: 16px;
+    background-image:
+      linear-gradient(to right,
+        transparent calc(20% - 1px), var(--border) calc(20% - 1px), var(--border) 20%, transparent 20%,
+        transparent calc(40% - 1px), var(--border) calc(40% - 1px), var(--border) 40%, transparent 40%,
+        transparent calc(60% - 1px), var(--border) calc(60% - 1px), var(--border) 60%, transparent 60%,
+        transparent calc(80% - 1px), var(--border) calc(80% - 1px), var(--border) 80%, transparent 80%
+      );
+  }
+
+  .trace-bar {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 9px;
+    background: var(--text);
+  }
+  .trace-bar.external { background: var(--secondary); }
+  .trace-bar.data { background: var(--muted); }
+  .trace-bar.warn { background: var(--warning); }
+
+  .trace-duration {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.04em;
+    color: var(--text);
+    padding-left: 6px;
+    white-space: nowrap;
+  }
+
+  .trace-toggle {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--muted);
+    line-height: 1;
+  }
+  .trace-row:hover .trace-toggle { color: var(--text); }
+  .trace-row.open .trace-toggle { color: var(--text); }
+
+  /* ============ DRILL-DOWN PANEL ============ */
+  .drilldown {
+    display: none;
+    background: var(--background);
+    border-bottom: 1px solid var(--border);
+    border-left: 2px solid var(--accent);
+    padding: 14px 18px 16px 18px;
+    margin: 0;
+  }
+  .trace-row.open + .drilldown,
+  .endpoint-row.open + .drilldown,
+  .events-table .event-row.open + .event-drilldown,
+  .event-row.open + .event-drilldown {
+    display: block;
+  }
+
+  .drilldown-grid {
+    display: grid;
+    grid-template-columns: 130px 1fr;
+    gap: 5px 18px;
+    font-family: var(--font-mono);
+  }
+
+  .drilldown-key {
+    font-size: 0.625rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding-top: 1px;
+  }
+
+  .drilldown-val {
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    color: var(--text);
+  }
+  .drilldown-val.mono-block { white-space: pre-line; line-height: 1.6; }
+
+  .drilldown-section-title {
+    font-family: var(--font-mono);
+    font-size: 0.5625rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 14px;
+    margin-bottom: 6px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid var(--border);
+  }
+  .drilldown-section-title:first-child { margin-top: 0; }
+
+  .drilldown-attribute-list {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.04em;
+    color: var(--text);
+    line-height: 1.7;
+  }
+  .drilldown-attribute-list .attr-key { color: var(--muted); }
+  .drilldown-attribute-list .attr-eq { color: var(--secondary); margin: 0 4px; }
+
+  .drilldown-event-row {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    gap: 16px;
+    padding: 4px 0;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+  }
+  .drilldown-event-row .ev-time { color: var(--muted); letter-spacing: 0.08em; }
+
+  .mini-bar {
+    display: flex;
+    height: 6px;
+    background: var(--border);
+    margin: 4px 0 6px;
+  }
+  .mini-bar > span { display: block; height: 100%; }
+  .mini-bar > .b-ok { background: var(--muted); }
+  .mini-bar > .b-warn { background: var(--warning); opacity: 0.75; }
+  .mini-bar > .b-err { background: var(--warning); }
+
+  .drilldown-link {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.04em;
+    color: var(--text);
+    text-decoration: none;
+    border-bottom: 1px dashed var(--muted);
+    padding-bottom: 1px;
+  }
+  .drilldown-link:hover { border-bottom-style: solid; }
+
+  /* ============ REGISTERS ============ */
+  .register-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0 32px;
+    border-top: 1px solid var(--secondary);
+    border-bottom: 1px solid var(--secondary);
+  }
+
+  .register-row {
+    display: grid;
+    grid-template-columns: 80px 1fr auto;
+    align-items: baseline;
+    padding: 8px 4px;
+    border-bottom: 1px solid var(--border);
+    gap: 14px;
+    font-family: var(--font-mono);
+  }
+  .register-row:nth-last-child(-n+2) { border-bottom: none; }
+  .register-row:nth-last-child(2) { border-bottom: 1px solid var(--border); }
+  @media (max-width: 900px) {
+    .register-row:nth-last-child(2) { border-bottom: none; }
+  }
+
+  .register-name {
+    font-size: 0.625rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .register-value {
+    font-size: 0.875rem;
+    letter-spacing: 0.04em;
+    color: var(--text);
+    font-weight: 500;
+    text-align: right;
+  }
+  .register-value.warn { color: var(--warning); }
+  .register-unit {
+    font-size: 0.5625rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    min-width: 100px;
+    text-align: left;
+  }
+
+  /* ============ SLO BUDGETS ============ */
+  .slo-list { display: flex; flex-direction: column; gap: 14px; }
+
+  .slo-row { display: flex; flex-direction: column; gap: 5px; }
+
+  .slo-row-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-family: var(--font-mono);
+  }
+
+  .slo-row-name {
+    font-size: 0.6875rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text);
+  }
+
+  .slo-row-target {
+    font-size: 0.5625rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .slo-bar-track {
+    height: 10px;
+    background: var(--background);
+    border: 1px solid var(--border);
+    position: relative;
+  }
+
+  .slo-bar-fill {
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    background: var(--text);
+  }
+  .slo-bar-fill.warn { background: var(--warning); }
+
+  .slo-bar-foot {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: 0.5625rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .slo-bar-foot .slo-pct { color: var(--text); }
+  .slo-bar-foot .slo-pct.warn { color: var(--warning); }
+
+  /* ============ TOP ENDPOINTS ============ */
+  .endpoint-list {
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid var(--secondary);
+  }
+
+  .endpoint-row {
+    display: grid;
+    grid-template-columns: 58px 1fr 70px 70px 60px 16px;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 4px;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--font-mono);
+    cursor: pointer;
+  }
+  .endpoint-row:hover { background: rgba(96, 64, 65, 0.08); }
+  .endpoint-row.open { background: rgba(96, 64, 65, 0.10); }
+
+  .endpoint-method {
+    font-size: 0.5625rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 3px 6px;
+    border: 1px solid var(--border);
+    text-align: center;
+  }
+  .endpoint-method.post { border-color: var(--secondary); color: var(--text); }
+
+  .endpoint-path {
+    font-size: 0.75rem;
+    letter-spacing: 0.03em;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .endpoint-stat {
+    font-size: 0.75rem;
+    letter-spacing: 0.03em;
+    color: var(--text);
+    text-align: right;
+  }
+  .endpoint-stat.warn { color: var(--warning); }
+  .endpoint-stat.muted { color: var(--muted); }
+
+  .endpoint-toggle {
+    font-size: 0.75rem;
+    color: var(--muted);
+    text-align: center;
+  }
+  .endpoint-row:hover .endpoint-toggle,
+  .endpoint-row.open .endpoint-toggle { color: var(--text); }
+
+  /* ============ CONTROLS ============ */
+  .switch-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .switch-cap {
+    background: var(--warning);
+    padding: 12px 12px 10px;
+    cursor: pointer;
+    border: none;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #5a2828;
+    font-weight: 600;
+    flex: 1;
+    min-width: 50px;
+    text-align: center;
+    box-shadow: inset 0 -2px 0 rgba(0,0,0,0.18);
+    outline: 2px solid var(--text);
+    outline-offset: -5px;
+    border-radius: 0;
+  }
+  .switch-cap.off {
+    outline: 2px solid transparent;
+    background: #9c6868;
+    color: #4a2a2a;
+    box-shadow: inset 0 -2px 0 rgba(0,0,0,0.35);
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: var(--text);
+    padding: 13px 22px 11px;
+    border: none;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 0;
+    width: 100%;
+    box-shadow: inset 0 -2px 0 rgba(0,0,0,0.22);
+  }
+  .btn-primary:hover {
+    box-shadow: inset 0 -2px 0 rgba(0,0,0,0.40), inset 0 1px 0 rgba(255,255,255,0.05);
+  }
+
+  .controls-meta {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+  }
+  .controls-meta-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 4px 0;
+  }
+
+  /* ============ EVENTS LOG ============ */
+  .events-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-mono);
+  }
+  .events-table th {
+    text-align: left;
+    padding: 0 4px 8px;
+    font-size: 0.625rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 500;
+    border-bottom: 1px solid var(--secondary);
+  }
+
+  .events-time { width: 96px; color: var(--muted); white-space: nowrap; }
+  .events-mark-col { width: 18px; padding-right: 0 !important; }
+  .events-toggle-col { width: 16px; text-align: center; }
+
+  .event-row { cursor: pointer; }
+  .event-row > td {
+    padding: 8px 4px;
+    font-size: 0.6875rem;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    color: var(--text);
+    border-bottom: 1px solid var(--border);
+    vertical-align: baseline;
+  }
+  .event-row:hover > td { background: rgba(96, 64, 65, 0.06); }
+  .event-row.open > td { background: rgba(96, 64, 65, 0.10); }
+  .event-row:last-child > td { border-bottom: none; }
+  .event-row > td .event-toggle { color: var(--muted); }
+  .event-row:hover > td .event-toggle,
+  .event-row.open > td .event-toggle { color: var(--text); }
+
+  .event-drilldown {
+    display: none;
+  }
+  .event-drilldown > td {
+    padding: 0 !important;
+    border: none !important;
+  }
+  .event-drilldown .drilldown {
+    margin: 0 -4px;
+    display: block;
+  }
+  .events-table .event-row.open + .event-drilldown { display: table-row; }
+
+  .event-mark {
+    display: inline-block;
+    width: 8px; height: 8px;
+    background: var(--text);
+    vertical-align: middle;
+  }
+  .event-mark.warn { background: var(--warning); }
+  .event-mark.go { background: var(--success); }
+  .event-mark.mute { background: var(--muted); }
+
+  /* ============ FOOTER ============ */
+  .footer {
+    background: var(--secondary);
+    padding: 13px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    border: 1px solid var(--border);
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width: 1180px) {
+    .content-grid { grid-template-columns: repeat(6, 1fr); }
+    .col-3 { grid-column: span 3; }
+    .col-6 { grid-column: span 6; }
+    .col-9 { grid-column: span 6; }
+  }
+  @media (max-width: 900px) {
+    .masthead, .subnav, .footer { padding-left: 20px; padding-right: 20px; }
+    .masthead { flex-wrap: wrap; }
+    .register-grid { grid-template-columns: 1fr; }
+    .trace-row, .trace-ruler { grid-template-columns: 200px 1fr; }
+    .endpoint-row { grid-template-columns: 50px 1fr 60px 56px 50px 14px; gap: 8px; }
+    .drilldown-grid { grid-template-columns: 110px 1fr; }
+  }
+  @media (max-width: 700px) {
+    .content-grid { grid-template-columns: 1fr; }
+    .col-3, .col-6, .col-9 { grid-column: span 1; }
+    .ambient { padding: 24px 16px; }
+    .title-friendly { font-size: 1.5rem; }
+    .trace-row, .trace-ruler { grid-template-columns: 140px 1fr; }
+    .trace-name { font-size: 0.6875rem; }
+    .kpi-grid { grid-template-columns: 1fr; }
+    .kpi-cell:nth-child(2n) { padding-left: 0; border-left: none; }
+    .kpi-cell:nth-child(2n) { padding-top: 12px; }
+    .endpoint-row { grid-template-columns: 1fr 60px 60px; gap: 8px; }
+    .endpoint-method, .endpoint-stat.muted, .endpoint-toggle { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="ambient">
+
+  <!-- ============ MASTHEAD ============ -->
+  <header class="masthead">
+    <h1 class="title-friendly">service telemetry archive</h1>
+    <div class="masthead-meta">
+      <div class="meta-block">
+        <span class="caps-label">SERVICE</span>
+        <span class="caps-value">checkout-api</span>
+      </div>
+      <div class="meta-block">
+        <span class="caps-label">REGION</span>
+        <span class="caps-value">us-east-1</span>
+      </div>
+      <div class="meta-block">
+        <span class="caps-label">WINDOW</span>
+        <span class="caps-value"><span class="stencil">2026-05-17</span> · 14:00Z</span>
+      </div>
+      <div class="pip-cluster">
+        <span class="pip on"></span><span class="pip-label">TRC</span>
+        <span class="pip on"></span><span class="pip-label">MET</span>
+        <span class="pip on"></span><span class="pip-label">LOG</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="accent-stripe"></div>
+
+  <!-- ============ SUB-NAV ============ -->
+  <nav class="subnav">
+    <a class="subnav-item">SERVICES</a>
+    <a class="subnav-item active">TRACES</a>
+    <a class="subnav-item">METRICS</a>
+    <a class="subnav-item">LOGS</a>
+    <a class="subnav-item">ALERTS</a>
+    <a class="subnav-item">DEPENDENCIES</a>
+  </nav>
+
+  <!-- ============ CONTENT GRID ============ -->
+  <main class="content-grid">
+
+    <!-- VITALS — 6 KPI GRID -->
+    <section class="module col-3">
+      <div class="module-masthead module-masthead-primary">
+        <h2 class="title-friendly title-friendly-md">service vitals</h2>
+        <span class="module-aux warn">DEGRADED</span>
+      </div>
+      <div class="module-body">
+        <p class="vitals-summary">
+          Latency degradation observed 14:32Z–14:48Z, attributed to payment-gateway upstream. Circuit breaker tripped 14:41Z, recovery complete by 14:54Z.
+        </p>
+        <div class="kpi-grid">
+          <div class="kpi-cell">
+            <span class="kpi-label">REQUEST RATE</span>
+            <span class="kpi-value">1,247<span class="kpi-value-unit">r/s</span></span>
+            <span class="kpi-state">NOMINAL</span>
+          </div>
+          <div class="kpi-cell">
+            <span class="kpi-label">ERROR RATE</span>
+            <span class="kpi-value warn">2.40<span class="kpi-value-unit">%</span></span>
+            <span class="kpi-state warn">ELEVATED</span>
+          </div>
+          <div class="kpi-cell">
+            <span class="kpi-label">P50 LATENCY</span>
+            <span class="kpi-value">87<span class="kpi-value-unit">ms</span></span>
+            <span class="kpi-state">NOMINAL</span>
+          </div>
+          <div class="kpi-cell">
+            <span class="kpi-label">P95 LATENCY</span>
+            <span class="kpi-value warn">487<span class="kpi-value-unit">ms</span></span>
+            <span class="kpi-state warn">DEGRADED</span>
+          </div>
+          <div class="kpi-cell">
+            <span class="kpi-label">P99 LATENCY</span>
+            <span class="kpi-value warn">1.24<span class="kpi-value-unit">s</span></span>
+            <span class="kpi-state warn">DEGRADED</span>
+          </div>
+          <div class="kpi-cell">
+            <span class="kpi-label">APDEX</span>
+            <span class="kpi-value warn">0.82</span>
+            <span class="kpi-state warn">BELOW SLO</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LATENCY CHART -->
+    <section class="module col-3">
+      <div class="module-masthead module-masthead-secondary">
+        <h2 class="title-friendly title-friendly-md">latency · 60 min</h2>
+        <span class="module-aux">P50 / P95 · MS</span>
+      </div>
+      <div class="module-body">
+        <svg class="chart-surface" viewBox="0 0 600 280" preserveAspectRatio="xMidYMid meet" aria-label="Latency p50 and p95 over the last 60 minutes">
+          <line class="chart-grid-line" x1="55" y1="30"  x2="585" y2="30"  />
+          <line class="chart-grid-line" x1="55" y1="70"  x2="585" y2="70"  />
+          <line class="chart-grid-line" x1="55" y1="110" x2="585" y2="110" />
+          <line class="chart-grid-line" x1="55" y1="150" x2="585" y2="150" />
+          <line class="chart-grid-line" x1="55" y1="190" x2="585" y2="190" />
+          <line class="chart-grid-line" x1="55" y1="230" x2="585" y2="230" />
+
+          <text class="chart-axis-label" x="48" y="33"  text-anchor="end">500</text>
+          <text class="chart-axis-label" x="48" y="73"  text-anchor="end">400</text>
+          <text class="chart-axis-label" x="48" y="113" text-anchor="end">300</text>
+          <text class="chart-axis-label" x="48" y="153" text-anchor="end">200</text>
+          <text class="chart-axis-label" x="48" y="193" text-anchor="end">100</text>
+          <text class="chart-axis-label" x="48" y="233" text-anchor="end">0</text>
+
+          <text class="chart-axis-label" x="22" y="135" text-anchor="middle" transform="rotate(-90 22 135)">MS</text>
+
+          <line class="chart-aos-los" x1="60"  y1="20" x2="60"  y2="230" />
+          <line class="chart-aos-los" x1="320" y1="20" x2="320" y2="230" />
+          <line class="chart-aos-los" x1="580" y1="20" x2="580" y2="230" />
+
+          <text class="chart-axis-label" x="60"  y="252" text-anchor="start">14:00Z</text>
+          <text class="chart-axis-label" x="320" y="252" text-anchor="middle">14:30Z · DEPLOY</text>
+          <text class="chart-axis-label" x="580" y="252" text-anchor="end">15:00Z</text>
+
+          <path class="chart-line-muted" d="M 60,198 L 86,202 L 112,200 L 138,196 L 164,198 L 190,195 L 216,196 L 242,194 L 268,196 L 294,193 L 320,194 L 346,190 L 372,188 L 398,185 L 424,180 L 450,178 L 476,182 L 502,188 L 528,194 L 554,196 L 580,198" />
+          <path class="chart-line" d="M 60,186 L 86,188 L 112,184 L 138,182 L 164,183 L 190,185 L 216,182 L 242,180 L 268,184 L 294,182 L 320,178 L 346,165 L 372,142 L 398,108 L 424,75 L 450,68 L 476,82 L 502,118 L 528,158 L 554,178 L 580,184" />
+
+          <circle cx="450" cy="68" r="3" class="chart-marker" />
+          <line class="chart-grid-line" x1="450" y1="68" x2="450" y2="50" />
+          <text class="chart-axis-label" x="450" y="44" text-anchor="middle" style="fill: var(--text); letter-spacing: 0.14em;">PEAK · 487 MS</text>
+
+          <rect x="317" y="14" width="6" height="6" style="fill: var(--text);" />
+        </svg>
+      </div>
+    </section>
+
+    <!-- STATUS CODES BAR CHART -->
+    <section class="module col-3">
+      <div class="module-masthead module-masthead-secondary">
+        <h2 class="title-friendly title-friendly-md">status codes</h2>
+        <span class="module-aux">DISTRIBUTION · %</span>
+      </div>
+      <div class="module-body">
+        <svg class="chart-surface" viewBox="0 0 500 260" preserveAspectRatio="xMidYMid meet" aria-label="HTTP status code distribution by class">
+          <text class="chart-axis-label" x="22" y="33"  text-anchor="end">100</text>
+          <text class="chart-axis-label" x="22" y="78"  text-anchor="end">75</text>
+          <text class="chart-axis-label" x="22" y="123" text-anchor="end">50</text>
+          <text class="chart-axis-label" x="22" y="168" text-anchor="end">25</text>
+          <text class="chart-axis-label" x="22" y="213" text-anchor="end">0</text>
+
+          <line class="chart-grid-line" x1="30" y1="30"  x2="470" y2="30"  />
+          <line class="chart-grid-line" x1="30" y1="75"  x2="470" y2="75"  style="opacity: 0.5;" />
+          <line class="chart-grid-line" x1="30" y1="120" x2="470" y2="120" style="opacity: 0.5;" />
+          <line class="chart-grid-line" x1="30" y1="165" x2="470" y2="165" style="opacity: 0.5;" />
+          <line class="chart-baseline"  x1="30" y1="210" x2="470" y2="210" />
+
+          <rect class="chart-bar-2xx" x="35"  y="53"  width="35" height="157" />
+          <rect class="chart-bar-2xx" x="78"  y="195" width="35" height="15" />
+          <rect class="chart-bar-2xx" x="121" y="206" width="35" height="4" />
+          <text class="chart-bar-value" x="52"  y="46">87.3</text>
+          <text class="chart-bar-value" x="95"  y="188">8.2</text>
+          <text class="chart-bar-value" x="138" y="199">2.1</text>
+
+          <rect class="chart-bar-4xx" x="188" y="207" width="35" height="3" />
+          <rect class="chart-bar-4xx" x="231" y="209" width="35" height="1" />
+          <rect class="chart-bar-4xx" x="274" y="202" width="35" height="8" />
+          <text class="chart-bar-value" x="205" y="200">0.4</text>
+          <text class="chart-bar-value" x="248" y="202">0.1</text>
+          <text class="chart-bar-value" x="291" y="195">1.1</text>
+
+          <rect class="chart-bar-5xx selected" x="341" y="204" width="35" height="6" />
+          <rect class="chart-bar-5xx" x="384" y="208" width="35" height="2" />
+          <rect class="chart-bar-5xx" x="427" y="209.5" width="35" height="0.5" />
+          <text class="chart-bar-value" x="358" y="197" style="fill: var(--text); font-weight: 600;">0.6</text>
+          <text class="chart-bar-value" x="401" y="201">0.2</text>
+          <text class="chart-bar-value" x="444" y="203">0.0</text>
+
+          <text class="chart-axis-label" x="52"  y="226" text-anchor="middle">200</text>
+          <text class="chart-axis-label" x="95"  y="226" text-anchor="middle">201</text>
+          <text class="chart-axis-label" x="138" y="226" text-anchor="middle">204</text>
+          <text class="chart-axis-label" x="205" y="226" text-anchor="middle">400</text>
+          <text class="chart-axis-label" x="248" y="226" text-anchor="middle">401</text>
+          <text class="chart-axis-label" x="291" y="226" text-anchor="middle">404</text>
+          <text class="chart-axis-label" x="358" y="226" text-anchor="middle">500</text>
+          <text class="chart-axis-label" x="401" y="226" text-anchor="middle">502</text>
+          <text class="chart-axis-label" x="444" y="226" text-anchor="middle">503</text>
+
+          <text class="chart-axis-label" x="95"  y="246" text-anchor="middle" style="opacity: 0.5;">2XX · SUCCESS</text>
+          <text class="chart-axis-label" x="248" y="246" text-anchor="middle" style="opacity: 0.5;">4XX · CLIENT</text>
+          <text class="chart-axis-label" x="401" y="246" text-anchor="middle" style="opacity: 0.5;">5XX · SERVER</text>
+        </svg>
+      </div>
+    </section>
+
+    <!-- TRACE WATERFALL — CLICKABLE -->
+    <section class="module col-9">
+      <div class="module-masthead module-masthead-primary">
+        <h2 class="title-friendly title-friendly-md">exemplar trace · POST /api/checkout</h2>
+        <span class="module-aux">TRACE 2X4F8A91 · 487 MS · 09 SPANS · CLICK ROW TO INSPECT</span>
+      </div>
+      <div class="module-body">
+        <div class="trace-ruler">
+          <div class="trace-ruler-labels">
+            <span>SPAN</span>
+            <span>SERVICE / KIND</span>
+          </div>
+          <div class="trace-ruler-axis">
+            <span class="trace-ruler-tick" style="left: 0%">0MS</span>
+            <span class="trace-ruler-tick" style="left: 20%">100</span>
+            <span class="trace-ruler-tick" style="left: 40%">200</span>
+            <span class="trace-ruler-tick" style="left: 60%">300</span>
+            <span class="trace-ruler-tick" style="left: 80%">400</span>
+            <span class="trace-ruler-tick" style="left: 100%">500</span>
+          </div>
+        </div>
+
+        <div class="trace-row indent-0" data-drilldown>
+          <div class="trace-meta">
+            <span class="trace-name">POST /api/checkout</span>
+            <span class="trace-service">checkout-api · SERVER</span>
+            <span class="trace-toggle">+</span>
+          </div>
+          <div class="trace-bar-container">
+            <div class="trace-bar" style="left: 0%; width: 97.4%;"></div>
+            <div class="trace-duration" style="left: 97.4%;">487.0 MS</div>
+          </div>
+        </div>
+        <div class="drilldown">
+          <div class="drilldown-section-title">SPAN</div>
+          <div class="drilldown-grid">
+            <span class="drilldown-key">SPAN ID</span><span class="drilldown-val">2x4f8a91 a7f2c4b8</span>
+            <span class="drilldown-key">PARENT</span><span class="drilldown-val">— · ROOT</span>
+            <span class="drilldown-key">KIND</span><span class="drilldown-val">SERVER</span>
+            <span class="drilldown-key">STATUS</span><span class="drilldown-val">OK · 200</span>
+          </div>
+          <div class="drilldown-section-title">ATTRIBUTES</div>
+          <div class="drilldown-attribute-list">
+            <span class="attr-key">http.method</span><span class="attr-eq">=</span>POST<br>
+            <span class="attr-key">http.route</span><span class="attr-eq">=</span>/api/checkout<br>
+            <span class="attr-key">http.status_code</span><span class="attr-eq">=</span>200<br>
+            <span class="attr-key">user.session</span><span class="attr-eq">=</span>sess_8b4c1fd2<br>
+            <span class="attr-key">checkout.cart_size</span><span class="attr-eq">=</span>3 items<br>
+            <span class="attr-key">checkout.total_cents</span><span class="attr-eq">=</span>4287
+          </div>
+        </div>
+
+        <div class="trace-row indent-1" data-drilldown>
+          <div class="trace-meta">
+            <span class="trace-name">POST /auth/verify</span>
+            <span class="trace-service">auth-service · CLIENT</span>
+            <span class="trace-toggle">+</span>
+          </div>
+          <div class="trace-bar-container">
+            <div class="trace-bar external" style="left: 0.8%; width: 2.4%;"></div>
+            <div class="trace-duration" style="left: 3.2%;">12.0</div>
+          </div>
+        </div>
+        <div class="drilldown">
+          <div class="drilldown-attribute-list">
+            <span class="attr-key">net.peer.name</span><span class="attr-eq">=</span>auth-service.commerce.svc.cluster.local<br>
+            <span class="attr-key">rpc.system</span><span class="attr-eq">=</span>http · <span class="attr-key">auth.method</span><span class="attr-eq">=</span>JWT
+          </div>
+        </div>
+
+        <div class="trace-row indent-1" data-drilldown>
+          <div class="trace-meta">
+            <span class="trace-name">GET /cart/items</span>
+            <span class="trace-service">cart-service · CLIENT</span>
+            <span class="trace-toggle">+</span>
+          </div>
+          <div class="trace-bar-container">
+            <div class="trace-bar external" style="left: 3.4%; width: 5.4%;"></div>
+            <div class="trace-duration" style="left: 8.8%;">27.0</div>
+          </div>
+        </div>
+        <div class="drilldown">
+          <div class="drilldown-attribute-list">
+            <span class="attr-key">cart.id</span><span class="attr-eq">=</span>cart_a2d9e0c7 · <span class="attr-key">cart.items</span><span class="attr-eq">=</span>3
+          </div>
+        </div>
+
+        <div class="trace-row indent-1" data-drilldown>
+          <div class="trace-meta">
+            <span class="trace-name">POST /inventory/reserve</span>
+            <span class="trace-service">inventory-service · CLIENT</span>
+            <span class="trace-toggle">+</span>
+          </div>
+          <div class="trace-bar-container">
+            <div class="trace-bar external" style="left: 9.2%; width: 9.2%;"></div>
+            <div class="trace-duration" style="left: 18.4%;">46.0</div>
+          </div>
+        </div>
+        <div class="drilldown">
+          <div class="drilldown-attribute-list">
+            <span class="attr-key">inventory.sku</span><span class="attr-eq">=</span>sku-1342, sku-2871, sku-3902 · <span class="attr-key">reservation.id</span><span class="attr-eq">=</span>res_4b1e8f73
+          </div>
+        </div>
+
+        <div class="trace-row indent-2" data-drilldown>
+          <div class="trace-meta">
+            <span class="trace-name">SELECT items FROM stock</span>
+            <span class="trace-service">postgres · DB</span>
+            <span class="trace-toggle">+</span>
+          </div>
+          <div class="trace-bar-container">
+            <div class="trace-bar data" style="left: 9.8%; width: 4.6%;"></div>
+            <div class="trace-duration" style="left: 14.4%;">23.0</div>
+          </div>
+        </div>
+        <div class="drilldown">
+          <div class="drilldown-attribute-list">
+            <span class="attr-key">db.system</span><span class="attr-eq">=</span>postgresql · <span class="attr-key">db.name</span><span class="attr-eq">=</span>inventory_prod · <span class="attr-key">db.statement</span><span class="attr-eq">=</span>SELECT ... FROM stock WHERE sku IN ($1, $2, $3)
+          </div>
+        </div>
+
+        <div class="trace-row indent-2" data-drilldown>
+          <div class="trace-meta">
+            <span class="trace-name">GET stock:cache:sku-1342</span>
+            <span class="trace-service">redis · CACHE</span>
+            <span class="trace-toggle">+</span>
+          </div>
+          <div class="trace-bar-container">
+            <div class="trace-bar data" style="left: 14.8%; width: 0.8%;"></div>
+            <div class="trace-duration" style="left: 15.6%;">4.0</div>
+          </div>
+        </div>
+        <div class="drilldown">
+          <div class="drilldown-attribute-list">
+            <span class="attr-key">cache.hit</span><span class="attr-eq">=</span>true · <span class="attr-key">cache.ttl_sec</span><span class="attr-eq">=</span>287
+          </div>
+        </div>
+
+        <!-- THE SLOW SPAN — auto-expanded -->
+        <div class="trace-row indent-1 open" data-drilldown>
+          <div class="trace-meta">
+            <span class="trace-name">POST /payments/charge</span>
+            <span class="trace-service">payment-gateway · CLIENT</span>
+            <span class="trace-toggle">−</span>
+          </div>
+          <div class="trace-bar-container">
+            <div class="trace-bar warn" style="left: 18.8%; width: 77.4%;"></div>
+            <div class="trace-duration" style="left: 96.2%; transform: translate(-100%, -50%); padding-left: 0; padding-right: 8px;">387.0</div>
+          </div>
+        </div>
+        <div class="drilldown">
+          <div class="drilldown-section-title">SPAN</div>
+          <div class="drilldown-grid">
+            <span class="drilldown-key">SPAN ID</span><span class="drilldown-val">2x4f8a91 9c2d1a8b</span>
+            <span class="drilldown-key">PARENT</span><span class="drilldown-val">2x4f8a91 a7f2c4b8</span>
+            <span class="drilldown-key">KIND</span><span class="drilldown-val">CLIENT</span>
+            <span class="drilldown-key">STATUS</span><span class="drilldown-val">OK · 200 · slow</span>
+            <span class="drilldown-key">DURATION</span><span class="drilldown-val">387.0 ms · started +94 ms</span>
+          </div>
+          <div class="drilldown-section-title">ATTRIBUTES</div>
+          <div class="drilldown-attribute-list">
+            <span class="attr-key">http.method</span><span class="attr-eq">=</span>POST<br>
+            <span class="attr-key">http.url</span><span class="attr-eq">=</span>https://api.stripe.com/v1/charges<br>
+            <span class="attr-key">http.status_code</span><span class="attr-eq">=</span>200<br>
+            <span class="attr-key">net.peer.name</span><span class="attr-eq">=</span>api.stripe.com · <span class="attr-key">net.peer.port</span><span class="attr-eq">=</span>443<br>
+            <span class="attr-key">rpc.system</span><span class="attr-eq">=</span>http · <span class="attr-key">payment.intent</span><span class="attr-eq">=</span>pi_2x4f8a
+          </div>
+          <div class="drilldown-section-title">RESOURCE</div>
+          <div class="drilldown-attribute-list">
+            <span class="attr-key">service.name</span><span class="attr-eq">=</span>payment-gateway · <span class="attr-key">service.version</span><span class="attr-eq">=</span>2.18.4<br>
+            <span class="attr-key">k8s.namespace</span><span class="attr-eq">=</span>commerce · <span class="attr-key">k8s.pod</span><span class="attr-eq">=</span>payment-gateway-6d4f8c-x9k2p<br>
+            <span class="attr-key">k8s.cluster</span><span class="attr-eq">=</span>prod-us-east-1 · <span class="attr-key">deployment.env</span><span class="attr-eq">=</span>production
+          </div>
+          <div class="drilldown-section-title">SPAN EVENTS · 02</div>
+          <div class="drilldown-event-row">
+            <span class="ev-time">+187.4 MS</span><span>pool.acquired · checkpoint=connection_established</span>
+          </div>
+          <div class="drilldown-event-row">
+            <span class="ev-time">+364.2 MS</span><span>response.received · bytes=1242 · code=200</span>
+          </div>
+        </div>
+
+        <div class="trace-row indent-2" data-drilldown>
+          <div class="trace-meta">
+            <span class="trace-name">stripe.charges.create</span>
+            <span class="trace-service">stripe.com · EXTERNAL</span>
+            <span class="trace-toggle">+</span>
+          </div>
+          <div class="trace-bar-container">
+            <div class="trace-bar warn" style="left: 21.6%; width: 73.6%;"></div>
+            <div class="trace-duration" style="left: 95.2%; transform: translate(-100%, -50%); padding-left: 0; padding-right: 8px;">368.0</div>
+          </div>
+        </div>
+        <div class="drilldown">
+          <div class="drilldown-attribute-list">
+            <span class="attr-key">peer.service</span><span class="attr-eq">=</span>stripe.com (EXTERNAL) · <span class="attr-key">api.version</span><span class="attr-eq">=</span>2024-11-20<br>
+            <span class="attr-key">note</span><span class="attr-eq">=</span>External provider degradation suspected; 368ms exceeds 90-day baseline of 142ms
+          </div>
+        </div>
+
+        <div class="trace-row indent-1" data-drilldown>
+          <div class="trace-meta">
+            <span class="trace-name">POST /notify/receipt</span>
+            <span class="trace-service">notification-service · CLIENT</span>
+            <span class="trace-toggle">+</span>
+          </div>
+          <div class="trace-bar-container">
+            <div class="trace-bar external" style="left: 95.6%; width: 1.6%;"></div>
+            <div class="trace-duration" style="left: 97.2%; transform: translate(-100%, -50%); padding-left: 0; padding-right: 8px;">8.0</div>
+          </div>
+        </div>
+        <div class="drilldown">
+          <div class="drilldown-attribute-list">
+            <span class="attr-key">channel</span><span class="attr-eq">=</span>email · <span class="attr-key">template</span><span class="attr-eq">=</span>order_receipt_v3 · <span class="attr-key">queued</span><span class="attr-eq">=</span>true
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SERVICE REGISTERS — 12 NOUNS -->
+    <section class="module col-6">
+      <div class="module-masthead module-masthead-primary">
+        <h2 class="title-friendly title-friendly-md">service registers</h2>
+        <span class="module-aux">NOUN 16 — 27 · ACQUIRED</span>
+      </div>
+      <div class="module-body">
+        <div class="register-grid">
+          <div class="register-row">
+            <span class="register-name">NOUN 16</span>
+            <span class="register-value">checkout-api</span>
+            <span class="register-unit">SERVICE</span>
+          </div>
+          <div class="register-row">
+            <span class="register-name">NOUN 17</span>
+            <span class="register-value">a7f2c4b8</span>
+            <span class="register-unit">COMMIT · SHA-7</span>
+          </div>
+          <div class="register-row">
+            <span class="register-name">NOUN 18</span>
+            <span class="register-value">12 / 12</span>
+            <span class="register-unit">PODS · HEALTHY</span>
+          </div>
+          <div class="register-row">
+            <span class="register-name">NOUN 19</span>
+            <span class="register-value">34.2</span>
+            <span class="register-unit">CPU AVG · %</span>
+          </div>
+          <div class="register-row">
+            <span class="register-name">NOUN 20</span>
+            <span class="register-value">68.4</span>
+            <span class="register-unit">MEM AVG · %</span>
+          </div>
+          <div class="register-row">
+            <span class="register-name">NOUN 21</span>
+            <span class="register-value warn">12.4</span>
+            <span class="register-unit">GC P95 · MS</span>
+          </div>
+          <div class="register-row">
+            <span class="register-name">NOUN 22</span>
+            <span class="register-value">100.0</span>
+            <span class="register-unit">SAMPLING · %</span>
+          </div>
+          <div class="register-row">
+            <span class="register-name">NOUN 23</span>
+            <span class="register-value">168</span>
+            <span class="register-unit">RETENTION · HRS</span>
+          </div>
+          <div class="register-row">
+            <span class="register-name">NOUN 24</span>
+            <span class="register-value">4.21×10⁶</span>
+            <span class="register-unit">SPANS RX · 1H</span>
+          </div>
+          <div class="register-row">
+            <span class="register-name">NOUN 25</span>
+            <span class="register-value warn">87.2</span>
+            <span class="register-unit">SLO BUDGET · %</span>
+          </div>
+          <div class="register-row">
+            <span class="register-name">NOUN 26</span>
+            <span class="register-value warn">14.3</span>
+            <span class="register-unit">TAIL RATIO · P99/P50</span>
+          </div>
+          <div class="register-row">
+            <span class="register-name">NOUN 27</span>
+            <span class="register-value">v3.42.2</span>
+            <span class="register-unit">DEPLOY · 14:18Z</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLO BUDGETS — NEW MODULE -->
+    <section class="module col-3">
+      <div class="module-masthead module-masthead-secondary">
+        <h2 class="title-friendly title-friendly-md">slo budgets</h2>
+        <span class="module-aux">30D ROLLING</span>
+      </div>
+      <div class="module-body">
+        <div class="slo-list">
+          <div class="slo-row">
+            <div class="slo-row-head">
+              <span class="slo-row-name">AVAILABILITY</span>
+              <span class="slo-row-target">TGT 99.90 %</span>
+            </div>
+            <div class="slo-bar-track">
+              <div class="slo-bar-fill" style="width: 87.2%;"></div>
+            </div>
+            <div class="slo-bar-foot">
+              <span>BUDGET REMAINING</span>
+              <span class="slo-pct">87.2 %</span>
+            </div>
+          </div>
+          <div class="slo-row">
+            <div class="slo-row-head">
+              <span class="slo-row-name">LATENCY · P95</span>
+              <span class="slo-row-target">TGT &lt; 250 MS</span>
+            </div>
+            <div class="slo-bar-track">
+              <div class="slo-bar-fill warn" style="width: 34.1%;"></div>
+            </div>
+            <div class="slo-bar-foot">
+              <span>BUDGET REMAINING</span>
+              <span class="slo-pct warn">34.1 %</span>
+            </div>
+          </div>
+          <div class="slo-row">
+            <div class="slo-row-head">
+              <span class="slo-row-name">ERROR RATE</span>
+              <span class="slo-row-target">TGT &lt; 0.50 %</span>
+            </div>
+            <div class="slo-bar-track">
+              <div class="slo-bar-fill warn" style="width: 12.4%;"></div>
+            </div>
+            <div class="slo-bar-foot">
+              <span>BUDGET REMAINING</span>
+              <span class="slo-pct warn">12.4 %</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TOP ENDPOINTS — NEW MODULE WITH DRILLDOWN -->
+    <section class="module col-6">
+      <div class="module-masthead module-masthead-secondary">
+        <h2 class="title-friendly title-friendly-md">top endpoints</h2>
+        <span class="module-aux">BY REQ VOLUME · CLICK ROW TO INSPECT</span>
+      </div>
+      <div class="module-body module-body-tight">
+        <div class="endpoint-list">
+          <!-- Auto-expanded: POST /api/checkout -->
+          <div class="endpoint-row open" data-drilldown>
+            <span class="endpoint-method post">POST</span>
+            <span class="endpoint-path">/api/checkout</span>
+            <span class="endpoint-stat">124 r/s</span>
+            <span class="endpoint-stat warn">487 MS</span>
+            <span class="endpoint-stat warn">2.40 %</span>
+            <span class="endpoint-toggle">−</span>
+          </div>
+          <div class="drilldown">
+            <div class="drilldown-section-title">LATENCY PERCENTILES</div>
+            <div class="drilldown-attribute-list">
+              <span class="attr-key">P50</span><span class="attr-eq">=</span>87 MS · <span class="attr-key">P75</span><span class="attr-eq">=</span>142 MS · <span class="attr-key">P95</span><span class="attr-eq">=</span>487 MS · <span class="attr-key">P99</span><span class="attr-eq">=</span>1.24 S
+            </div>
+            <div class="drilldown-section-title">STATUS DISTRIBUTION</div>
+            <div class="mini-bar">
+              <span class="b-ok" style="width: 95.4%;"></span>
+              <span class="b-warn" style="width: 1.6%;"></span>
+              <span class="b-err" style="width: 3.0%;"></span>
+            </div>
+            <div class="drilldown-attribute-list">
+              <span class="attr-key">2xx</span><span class="attr-eq">=</span>95.4 % · <span class="attr-key">4xx</span><span class="attr-eq">=</span>1.6 % · <span class="attr-key">5xx</span><span class="attr-eq">=</span>3.0 %
+            </div>
+            <div class="drilldown-section-title">SAMPLE TRACES · 03</div>
+            <div class="drilldown-event-row">
+              <span class="ev-time">2X4F8A91</span>
+              <span>487 MS · <span style="color: var(--warning);">SLOW · payment-degraded</span></span>
+            </div>
+            <div class="drilldown-event-row">
+              <span class="ev-time">8B4C1FD2</span>
+              <span>392 MS · <span style="color: var(--warning);">SLOW · payment-degraded</span></span>
+            </div>
+            <div class="drilldown-event-row">
+              <span class="ev-time">A2D9E0C7</span>
+              <span>256 MS · nominal · pre-incident</span>
+            </div>
+            <div class="drilldown-section-title">DEPLOYMENTS · WINDOW</div>
+            <div class="drilldown-attribute-list">
+              <span class="attr-key">v3.42.1 → v3.42.2</span><span class="attr-eq">@</span>14:18Z · <a class="drilldown-link" href="#">VIEW CHANGE</a>
+            </div>
+          </div>
+
+          <div class="endpoint-row" data-drilldown>
+            <span class="endpoint-method">GET</span>
+            <span class="endpoint-path">/api/cart</span>
+            <span class="endpoint-stat">387 r/s</span>
+            <span class="endpoint-stat">92 MS</span>
+            <span class="endpoint-stat muted">0.10 %</span>
+            <span class="endpoint-toggle">+</span>
+          </div>
+          <div class="drilldown">
+            <div class="drilldown-attribute-list">
+              <span class="attr-key">p50</span><span class="attr-eq">=</span>22 MS · <span class="attr-key">p95</span><span class="attr-eq">=</span>92 MS · <span class="attr-key">p99</span><span class="attr-eq">=</span>184 MS · NOMINAL
+            </div>
+          </div>
+
+          <div class="endpoint-row" data-drilldown>
+            <span class="endpoint-method">GET</span>
+            <span class="endpoint-path">/api/products</span>
+            <span class="endpoint-stat">421 r/s</span>
+            <span class="endpoint-stat">68 MS</span>
+            <span class="endpoint-stat muted">0.00 %</span>
+            <span class="endpoint-toggle">+</span>
+          </div>
+          <div class="drilldown">
+            <div class="drilldown-attribute-list">
+              <span class="attr-key">p50</span><span class="attr-eq">=</span>18 MS · <span class="attr-key">p95</span><span class="attr-eq">=</span>68 MS · <span class="attr-key">p99</span><span class="attr-eq">=</span>112 MS · cache hit 94.2%
+            </div>
+          </div>
+
+          <div class="endpoint-row" data-drilldown>
+            <span class="endpoint-method post">POST</span>
+            <span class="endpoint-path">/api/payments</span>
+            <span class="endpoint-stat">124 r/s</span>
+            <span class="endpoint-stat warn">472 MS</span>
+            <span class="endpoint-stat warn">2.10 %</span>
+            <span class="endpoint-toggle">+</span>
+          </div>
+          <div class="drilldown">
+            <div class="drilldown-attribute-list">
+              <span class="attr-key">p50</span><span class="attr-eq">=</span>94 MS · <span class="attr-key">p95</span><span class="attr-eq">=</span>472 MS · <span class="attr-key">p99</span><span class="attr-eq">=</span>1.18 S · DEGRADED · same upstream as /api/checkout
+            </div>
+          </div>
+
+          <div class="endpoint-row" data-drilldown>
+            <span class="endpoint-method post">POST</span>
+            <span class="endpoint-path">/api/auth/login</span>
+            <span class="endpoint-stat">156 r/s</span>
+            <span class="endpoint-stat">142 MS</span>
+            <span class="endpoint-stat muted">0.40 %</span>
+            <span class="endpoint-toggle">+</span>
+          </div>
+          <div class="drilldown">
+            <div class="drilldown-attribute-list">
+              <span class="attr-key">p50</span><span class="attr-eq">=</span>48 MS · <span class="attr-key">p95</span><span class="attr-eq">=</span>142 MS · <span class="attr-key">p99</span><span class="attr-eq">=</span>284 MS · NOMINAL
+            </div>
+          </div>
+
+          <div class="endpoint-row" data-drilldown>
+            <span class="endpoint-method">GET</span>
+            <span class="endpoint-path">/api/orders</span>
+            <span class="endpoint-stat">89 r/s</span>
+            <span class="endpoint-stat">134 MS</span>
+            <span class="endpoint-stat muted">0.20 %</span>
+            <span class="endpoint-toggle">+</span>
+          </div>
+          <div class="drilldown">
+            <div class="drilldown-attribute-list">
+              <span class="attr-key">p50</span><span class="attr-eq">=</span>42 MS · <span class="attr-key">p95</span><span class="attr-eq">=</span>134 MS · <span class="attr-key">p99</span><span class="attr-eq">=</span>248 MS · NOMINAL
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTROLS -->
+    <section class="module col-3">
+      <div class="module-masthead module-masthead-secondary">
+        <h2 class="title-friendly title-friendly-md">controls</h2>
+        <span class="module-aux">WINDOW</span>
+      </div>
+      <div class="module-body">
+        <div class="switch-group">
+          <button class="switch-cap" data-state="on">1H</button>
+          <button class="switch-cap off" data-state="off">24H</button>
+          <button class="switch-cap off" data-state="off">7D</button>
+        </div>
+        <button class="btn-primary">EXPORT OTEL BUNDLE</button>
+
+        <div class="controls-meta">
+          <div class="controls-meta-row">
+            <span class="caps-label">SAMPLING</span>
+            <span class="caps-value">100 % · HEAD</span>
+          </div>
+          <div class="controls-meta-row">
+            <span class="caps-label">EXPORTER</span>
+            <span class="caps-value">OTLP / GRPC</span>
+          </div>
+          <div class="controls-meta-row">
+            <span class="caps-label">BUNDLE SIZE</span>
+            <span class="caps-value">142.8 MB</span>
+          </div>
+          <div class="controls-meta-row">
+            <span class="caps-label">SIGNATURE</span>
+            <span class="caps-value">SHA256 · OK</span>
+          </div>
+          <div class="controls-meta-row">
+            <span class="caps-label">COLLECTOR</span>
+            <span class="caps-value">0.108.0</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- INCIDENT TIMELINE — CLICKABLE -->
+    <section class="module col-9">
+      <div class="module-masthead module-masthead-secondary">
+        <h2 class="title-friendly title-friendly-md">incident timeline</h2>
+        <span class="module-aux">08 EVENTS · ASCENDING · CLICK ROW TO INSPECT</span>
+      </div>
+      <div class="module-body module-body-tight">
+        <table class="events-table">
+          <thead>
+            <tr>
+              <th class="events-mark-col"></th>
+              <th class="events-time">UTC</th>
+              <th>EVENT</th>
+              <th>DETAIL</th>
+              <th class="events-toggle-col"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="event-row" data-drilldown>
+              <td class="events-mark-col"><span class="event-mark mute"></span></td>
+              <td class="events-time">14:00:00Z</td>
+              <td>WINDOW OPEN</td>
+              <td>60 MIN ARCHIVE · 1.2M REQ EXPECTED</td>
+              <td class="events-toggle-col"><span class="event-toggle">+</span></td>
+            </tr>
+            <tr class="event-drilldown"><td colspan="5">
+              <div class="drilldown">
+                <div class="drilldown-attribute-list">
+                  <span class="attr-key">window.id</span><span class="attr-eq">=</span>w_2026138_1400 · <span class="attr-key">retention</span><span class="attr-eq">=</span>168h · <span class="attr-key">archive.size_estimate</span><span class="attr-eq">=</span>142 MB
+                </div>
+              </div>
+            </td></tr>
+
+            <tr class="event-row" data-drilldown>
+              <td class="events-mark-col"><span class="event-mark warn"></span></td>
+              <td class="events-time">14:08:42Z</td>
+              <td>ALERT FIRE</td>
+              <td>ErrorBudgetBurnHigh · P2</td>
+              <td class="events-toggle-col"><span class="event-toggle">+</span></td>
+            </tr>
+            <tr class="event-drilldown"><td colspan="5">
+              <div class="drilldown">
+                <div class="drilldown-grid">
+                  <span class="drilldown-key">ALERT</span><span class="drilldown-val">ErrorBudgetBurnHigh</span>
+                  <span class="drilldown-key">PRIORITY</span><span class="drilldown-val">P2</span>
+                  <span class="drilldown-key">CONDITION</span><span class="drilldown-val">budget burn × 14.4 over 1h</span>
+                  <span class="drilldown-key">ROUTE</span><span class="drilldown-val">sre-rota · slack #commerce-ops</span>
+                </div>
+              </div>
+            </td></tr>
+
+            <tr class="event-row" data-drilldown>
+              <td class="events-mark-col"><span class="event-mark"></span></td>
+              <td class="events-time">14:18:25Z</td>
+              <td>DEPLOY</td>
+              <td>checkout-api · v3.42.1 → v3.42.2</td>
+              <td class="events-toggle-col"><span class="event-toggle">+</span></td>
+            </tr>
+            <tr class="event-drilldown"><td colspan="5">
+              <div class="drilldown">
+                <div class="drilldown-grid">
+                  <span class="drilldown-key">PIPELINE</span><span class="drilldown-val">checkout-api · prod-us-east-1</span>
+                  <span class="drilldown-key">COMMIT</span><span class="drilldown-val">a7f2c4b8 · "tune retry backoff for upstream timeouts"</span>
+                  <span class="drilldown-key">STRATEGY</span><span class="drilldown-val">canary 10% → 50% → 100% over 8 min</span>
+                  <span class="drilldown-key">AUTHOR</span><span class="drilldown-val">d.kim@commerce</span>
+                </div>
+              </div>
+            </td></tr>
+
+            <tr class="event-row" data-drilldown>
+              <td class="events-mark-col"><span class="event-mark warn"></span></td>
+              <td class="events-time">14:32:17Z</td>
+              <td>DEPENDENCY DEGRADED</td>
+              <td>payment-gateway · P95 &gt; 500MS</td>
+              <td class="events-toggle-col"><span class="event-toggle">+</span></td>
+            </tr>
+            <tr class="event-drilldown"><td colspan="5">
+              <div class="drilldown">
+                <div class="drilldown-attribute-list">
+                  <span class="attr-key">upstream</span><span class="attr-eq">=</span>stripe.com · <span class="attr-key">baseline_p95</span><span class="attr-eq">=</span>142 MS · <span class="attr-key">current_p95</span><span class="attr-eq">=</span>368 MS · <span class="attr-key">delta</span><span class="attr-eq">=</span>+159 %
+                </div>
+              </div>
+            </td></tr>
+
+            <tr class="event-row" data-drilldown>
+              <td class="events-mark-col"><span class="event-mark warn"></span></td>
+              <td class="events-time">14:35:01Z</td>
+              <td>ALERT FIRE</td>
+              <td>LatencyP95High · P1</td>
+              <td class="events-toggle-col"><span class="event-toggle">+</span></td>
+            </tr>
+            <tr class="event-drilldown"><td colspan="5">
+              <div class="drilldown">
+                <div class="drilldown-attribute-list">
+                  <span class="attr-key">condition</span><span class="attr-eq">=</span>P95 &gt; 250 ms for 3 min · <span class="attr-key">actual</span><span class="attr-eq">=</span>487 ms peak
+                </div>
+              </div>
+            </td></tr>
+
+            <!-- Auto-expanded: CIRCUIT OPEN -->
+            <tr class="event-row open" data-drilldown>
+              <td class="events-mark-col"><span class="event-mark warn"></span></td>
+              <td class="events-time">14:41:18Z</td>
+              <td>CIRCUIT OPEN</td>
+              <td>payment-gateway breaker tripped</td>
+              <td class="events-toggle-col"><span class="event-toggle">−</span></td>
+            </tr>
+            <tr class="event-drilldown"><td colspan="5">
+              <div class="drilldown">
+                <div class="drilldown-section-title">ALERT</div>
+                <div class="drilldown-grid">
+                  <span class="drilldown-key">NAME</span><span class="drilldown-val">CircuitBreakerOpen</span>
+                  <span class="drilldown-key">PRIORITY</span><span class="drilldown-val">P1</span>
+                  <span class="drilldown-key">THRESHOLD</span><span class="drilldown-val">5 consecutive failures in 60 s</span>
+                  <span class="drilldown-key">ACTUAL</span><span class="drilldown-val">8 failures in 47 s · payment-gateway</span>
+                  <span class="drilldown-key">ROOT CAUSE</span><span class="drilldown-val">upstream.timeout · stripe.com p95 &gt; 800 ms</span>
+                </div>
+                <div class="drilldown-section-title">LINKS</div>
+                <div class="drilldown-grid">
+                  <span class="drilldown-key">TRACE</span><span class="drilldown-val"><a class="drilldown-link" href="#">2X4F8A91 · POST /api/checkout · 487 MS</a></span>
+                  <span class="drilldown-key">RUNBOOK</span><span class="drilldown-val"><a class="drilldown-link" href="#">runbooks.commerce/payment-gateway/circuit-breaker</a></span>
+                </div>
+                <div class="drilldown-section-title">RESPONSE</div>
+                <div class="drilldown-grid">
+                  <span class="drilldown-key">ACKED BY</span><span class="drilldown-val">sre-rota@team · 14:42:03Z</span>
+                  <span class="drilldown-key">RESOLVED</span><span class="drilldown-val">AUTO · 14:48:33Z · half-open probe succeeded</span>
+                  <span class="drilldown-key">DURATION</span><span class="drilldown-val">07 MIN 15 SEC</span>
+                </div>
+              </div>
+            </td></tr>
+
+            <tr class="event-row" data-drilldown>
+              <td class="events-mark-col"><span class="event-mark go"></span></td>
+              <td class="events-time">14:48:33Z</td>
+              <td>CIRCUIT CLOSE</td>
+              <td>payment-gateway · half-open → closed</td>
+              <td class="events-toggle-col"><span class="event-toggle">+</span></td>
+            </tr>
+            <tr class="event-drilldown"><td colspan="5">
+              <div class="drilldown">
+                <div class="drilldown-attribute-list">
+                  <span class="attr-key">probe</span><span class="attr-eq">=</span>POST /v1/charges (test_mode) · <span class="attr-key">latency</span><span class="attr-eq">=</span>148 ms · <span class="attr-key">status</span><span class="attr-eq">=</span>200 · breaker → closed
+                </div>
+              </div>
+            </td></tr>
+
+            <tr class="event-row" data-drilldown>
+              <td class="events-mark-col"><span class="event-mark go"></span></td>
+              <td class="events-time">14:54:09Z</td>
+              <td>ALERT RESOLVE</td>
+              <td>LatencyP95 nominal · BUDGET 87.2 %</td>
+              <td class="events-toggle-col"><span class="event-toggle">+</span></td>
+            </tr>
+            <tr class="event-drilldown"><td colspan="5">
+              <div class="drilldown">
+                <div class="drilldown-attribute-list">
+                  <span class="attr-key">recovered_at</span><span class="attr-eq">=</span>14:54:09Z · <span class="attr-key">duration</span><span class="attr-eq">=</span>19 min 08 sec · <span class="attr-key">budget.delta</span><span class="attr-eq">=</span>−12.8 % · <span class="attr-key">budget.remaining</span><span class="attr-eq">=</span>87.2 %
+                </div>
+              </div>
+            </td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="footer">
+    <span class="caps-label">CHECKOUT-API · US-EAST-1A · K8S NAMESPACE COMMERCE</span>
+    <span class="caps-label">OTLP COLLECTOR 0.108.0 · BUILD 2026.05.17</span>
+    <span class="caps-label">WINDOW 1473 OF 8760 · YTD</span>
+  </footer>
+</div>
+
+<script>
+  // Window-time switch caps (radio behavior)
+  const switches = document.querySelectorAll('.switch-cap');
+  switches.forEach(cap => {
+    cap.addEventListener('click', () => {
+      switches.forEach(s => s.classList.add('off'));
+      cap.classList.remove('off');
+    });
+  });
+
+  // Drill-down toggle — instant state swap per language spec
+  document.querySelectorAll('[data-drilldown]').forEach(row => {
+    row.addEventListener('click', () => {
+      row.classList.toggle('open');
+      // Swap +/− indicator on .trace-toggle, .endpoint-toggle, .event-toggle
+      const toggle = row.querySelector('.trace-toggle, .endpoint-toggle, .event-toggle');
+      if (toggle) {
+        toggle.textContent = row.classList.contains('open') ? '−' : '+';
+      }
+    });
+  });
+</script>
+</body>
+</html>

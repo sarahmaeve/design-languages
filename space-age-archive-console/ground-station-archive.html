@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pacific Ground Station Archive — Sentinel-7B / Session 2026-138</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Jost:wght@400;500&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+  :root {
+    --primary: #604041;
+    --secondary: #7E635F;
+    --accent: #D34B46;
+    --background: #1F1C1A;
+    --surface: #2F2E2D;
+    --text: #E6D2BE;
+    --muted: #AF988F;
+    --border: #3A312E;
+    --error: #D34B46;
+    --success: #6F8A6F;
+    --warning: #E48282;
+
+    --font-display: 'Jost', 'Futura', 'Avenir', sans-serif;
+    --font-body: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+    --font-mono: 'IBM Plex Mono', 'JetBrains Mono', 'Courier New', monospace;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html, body { margin: 0; padding: 0; }
+
+  body {
+    background: var(--background);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.55;
+    min-height: 100vh;
+    /* subtle matte grain — barely visible */
+    background-image:
+      radial-gradient(ellipse 1200px 600px at 50% -200px, rgba(96,64,65,0.06), transparent 70%);
+  }
+
+  .ambient {
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: 40px 24px 32px;
+  }
+
+  /* ============ MASTHEAD ============ */
+  .masthead {
+    background: var(--primary);
+    padding: 22px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 32px;
+    border: 1px solid var(--border);
+    border-bottom: none;
+  }
+
+  .title-friendly {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 1.953rem;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    color: var(--text);
+    text-transform: lowercase;
+    margin: 0;
+  }
+
+  .title-friendly-md {
+    font-size: 1.125rem;
+    line-height: 1.25;
+  }
+
+  .masthead-meta {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+  }
+
+  .meta-block {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+  }
+
+  .caps-label {
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text);
+    opacity: 0.68;
+  }
+
+  .caps-value {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text);
+  }
+
+  /* ============ STENCIL OUTLINE ============ */
+  .stencil {
+    color: transparent;
+    -webkit-text-stroke: 1px var(--text);
+    /* fallback for browsers without text-stroke */
+  }
+
+  /* ============ INDICATOR PIPS ============ */
+  .pip-cluster {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .pip {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    border-radius: 9999px;
+    background: var(--secondary);
+    box-shadow: inset 0 0 0 1px var(--border);
+    flex-shrink: 0;
+  }
+
+  .pip.on {
+    background: var(--text);
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.2);
+  }
+
+  .pip.warn {
+    background: var(--warning);
+  }
+
+  .pip-label {
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text);
+    margin-right: 10px;
+  }
+  .pip-label:last-child { margin-right: 0; }
+
+  /* ============ DEC-RED ACCENT STRIPE (appearance #1 of 2) ============ */
+  .accent-stripe {
+    height: 3px;
+    background: var(--accent);
+  }
+
+  /* ============ SUB-NAV ============ */
+  .subnav {
+    background: var(--secondary);
+    display: flex;
+    gap: 32px;
+    padding: 14px 28px;
+    border: 1px solid var(--border);
+    border-top: none;
+  }
+
+  .subnav-item {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    color: var(--text);
+    text-transform: uppercase;
+    cursor: pointer;
+    text-decoration: none;
+    padding: 2px 0;
+    transition: opacity 150ms ease;
+  }
+
+  .subnav-item:not(.active) {
+    opacity: 0.75;
+  }
+
+  .subnav-item:not(.active):hover {
+    opacity: 1;
+  }
+
+  .subnav-item.active {
+    color: transparent;
+    -webkit-text-stroke: 1px var(--text);
+    opacity: 1;
+  }
+
+  /* ============ GRID ============ */
+  .content-grid {
+    margin-top: 24px;
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    gap: 24px;
+  }
+
+  .module {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .col-3 { grid-column: span 3; }
+  .col-6 { grid-column: span 6; }
+  .col-9 { grid-column: span 9; }
+
+  .module-masthead {
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .module-masthead-primary { background: var(--primary); }
+  .module-masthead-secondary { background: var(--secondary); }
+
+  .module-body {
+    padding: 22px 20px;
+    flex: 1;
+  }
+
+  .module-aux {
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text);
+    opacity: 0.75;
+  }
+
+  /* ============ VITALS / KPI ============ */
+  .vitals-summary {
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    line-height: 1.55;
+    color: var(--text);
+    opacity: 0.78;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 8px;
+  }
+
+  .kpi-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 14px 0 6px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .kpi-row:last-child { border-bottom: none; padding-bottom: 0; }
+
+  .kpi-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .kpi-label {
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text);
+    opacity: 0.70;
+  }
+
+  .kpi-state {
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--success);
+  }
+
+  .kpi-state.warn { color: var(--warning); }
+
+  .kpi-value {
+    font-family: var(--font-mono);
+    font-size: 1.5rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    color: var(--text);
+    line-height: 1;
+  }
+
+  .kpi-value-unit {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-left: 6px;
+  }
+
+  /* ============ CHARTS ============ */
+  .chart-surface {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .chart-axis-label {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.10em;
+    fill: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .chart-axis-tick { stroke: var(--border); stroke-width: 1; }
+  .chart-grid-line { stroke: var(--border); stroke-width: 1; }
+  .chart-baseline { stroke: var(--secondary); stroke-width: 1; }
+  .chart-line { stroke: var(--text); stroke-width: 1.5; fill: none; }
+  .chart-marker { fill: var(--text); }
+  .chart-marker-peak { fill: var(--text); stroke: var(--secondary); stroke-width: 0; }
+  .chart-aos-los { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 2 3; opacity: 0.6; }
+  .chart-bar { fill: var(--warning); }
+  .chart-bar.selected {
+    fill: var(--warning);
+    stroke: var(--text);
+    stroke-width: 2;
+  }
+  .chart-bar-value {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.06em;
+    fill: var(--text);
+    text-anchor: middle;
+  }
+
+  /* ============ REGISTERS (DSKY-style) ============ */
+  .registers {
+    font-family: var(--font-mono);
+    border-top: 1px solid var(--secondary);
+    border-bottom: 1px solid var(--secondary);
+  }
+
+  .register-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0 32px;
+  }
+
+  .register-row {
+    display: grid;
+    grid-template-columns: 80px 1fr auto;
+    align-items: baseline;
+    padding: 11px 4px;
+    border-bottom: 1px solid var(--border);
+    gap: 16px;
+  }
+
+  .register-row:nth-last-child(-n+2) { border-bottom: none; }
+  .register-row:nth-last-child(2) { border-bottom: 1px solid var(--border); }
+  @media (max-width: 700px) {
+    .register-row:nth-last-child(2) { border-bottom: none; }
+  }
+
+  .register-name {
+    font-size: 0.6875rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .register-value {
+    font-size: 1rem;
+    letter-spacing: 0.04em;
+    color: var(--text);
+    font-weight: 500;
+    text-align: right;
+  }
+
+  .register-unit {
+    font-size: 0.625rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    min-width: 90px;
+    text-align: left;
+  }
+
+  /* ============ CONTROLS ============ */
+  .switch-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+
+  .switch-cap {
+    background: var(--warning);
+    padding: 14px 16px 12px;
+    cursor: pointer;
+    border: none;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #5a2828;
+    font-weight: 600;
+    flex: 1;
+    min-width: 70px;
+    text-align: center;
+    box-shadow: inset 0 -2px 0 rgba(0,0,0,0.18);
+    transition: outline 100ms ease, background 100ms ease;
+    outline: 2px solid var(--text);
+    outline-offset: -5px;
+    border-radius: 0;
+  }
+
+  .switch-cap.off {
+    outline: 2px solid transparent;
+    background: #9c6868;
+    color: #4a2a2a;
+    box-shadow: inset 0 -2px 0 rgba(0,0,0,0.35);
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: var(--text);
+    padding: 14px 22px 12px;
+    border: none;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 0;
+    width: 100%;
+    box-shadow: inset 0 -2px 0 rgba(0,0,0,0.22);
+  }
+
+  .btn-primary:hover {
+    box-shadow: inset 0 -2px 0 rgba(0,0,0,0.40), inset 0 1px 0 rgba(255,255,255,0.05);
+  }
+
+  .controls-meta {
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  .controls-meta-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 6px 0;
+  }
+
+  /* ============ EVENTS LOG ============ */
+  .events-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-mono);
+  }
+
+  .events-table th,
+  .events-table td {
+    text-align: left;
+    padding: 9px 4px;
+    font-size: 0.6875rem;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    color: var(--text);
+    border-bottom: 1px solid var(--border);
+    vertical-align: baseline;
+  }
+
+  .events-table th {
+    color: var(--muted);
+    font-weight: 500;
+    border-bottom: 1px solid var(--secondary);
+    padding-top: 0;
+  }
+
+  .events-table tr:last-child td { border-bottom: none; }
+
+  .events-time {
+    width: 100px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .events-mark-col { width: 18px; padding-right: 0 !important; }
+
+  .event-mark {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: var(--text);
+    vertical-align: middle;
+  }
+
+  .event-mark.warn { background: var(--warning); }
+  .event-mark.go { background: var(--success); }
+
+  /* ============ FOOTER ============ */
+  .footer {
+    background: var(--secondary);
+    padding: 14px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 24px;
+    border: 1px solid var(--border);
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width: 1180px) {
+    .content-grid { grid-template-columns: repeat(6, 1fr); }
+    .col-3 { grid-column: span 3; }
+    .col-6 { grid-column: span 6; }
+    .col-9 { grid-column: span 6; }
+  }
+
+  @media (max-width: 900px) {
+    .masthead, .subnav, .footer { padding-left: 20px; padding-right: 20px; }
+    .masthead { flex-wrap: wrap; }
+    .masthead-meta { flex-wrap: wrap; gap: 20px; }
+    .register-grid { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 700px) {
+    .content-grid { grid-template-columns: 1fr; }
+    .col-3, .col-6, .col-9 { grid-column: span 1; }
+    .ambient { padding: 24px 16px; }
+    .title-friendly { font-size: 1.5rem; }
+  }
+</style>
+</head>
+<body>
+<div class="ambient">
+
+  <!-- ============ MASTHEAD ============ -->
+  <header class="masthead">
+    <h1 class="title-friendly">ground station archive</h1>
+    <div class="masthead-meta">
+      <div class="meta-block">
+        <span class="caps-label">STATION</span>
+        <span class="caps-value">TS-03 · PACIFIC</span>
+      </div>
+      <div class="meta-block">
+        <span class="caps-label">SESSION</span>
+        <span class="caps-value"><span class="stencil">2026-138</span> / 1942Z</span>
+      </div>
+      <div class="meta-block">
+        <span class="caps-label">VEHICLE</span>
+        <span class="caps-value">SENTINEL-7B</span>
+      </div>
+      <div class="pip-cluster">
+        <span class="pip on"></span><span class="pip-label">LINK</span>
+        <span class="pip on"></span><span class="pip-label">AOS</span>
+        <span class="pip on"></span><span class="pip-label">TLM</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- DEC-RED stripe (appearance #1 of 2) -->
+  <div class="accent-stripe"></div>
+
+  <!-- ============ SUB-NAV ============ -->
+  <nav class="subnav">
+    <a class="subnav-item active">TELEMETRY</a>
+    <a class="subnav-item">REGISTERS</a>
+    <a class="subnav-item">EVENTS</a>
+    <a class="subnav-item">SESSIONS</a>
+    <a class="subnav-item">EXPORTS</a>
+  </nav>
+
+  <!-- ============ CONTENT GRID ============ -->
+  <main class="content-grid">
+
+    <!-- VITALS -->
+    <section class="module col-3">
+      <div class="module-masthead module-masthead-primary">
+        <h2 class="title-friendly title-friendly-md">session vitals</h2>
+        <span class="module-aux">NOMINAL</span>
+      </div>
+      <div class="module-body">
+        <p class="vitals-summary">
+          Descending pass, northbound. Acquisition at 04° elevation, culmination at 67° over station, loss at 03° declination.
+        </p>
+        <div class="kpi-row">
+          <div class="kpi-meta">
+            <span class="kpi-label">SIGNAL · PEAK</span>
+            <span class="kpi-state">NOMINAL</span>
+          </div>
+          <div>
+            <span class="kpi-value">−68.4</span><span class="kpi-value-unit">dBm</span>
+          </div>
+        </div>
+        <div class="kpi-row">
+          <div class="kpi-meta">
+            <span class="kpi-label">PACKET LOSS</span>
+            <span class="kpi-state warn">1 BURST</span>
+          </div>
+          <div>
+            <span class="kpi-value">0.02</span><span class="kpi-value-unit">%</span>
+          </div>
+        </div>
+        <div class="kpi-row">
+          <div class="kpi-meta">
+            <span class="kpi-label">BIT ERROR RATE</span>
+            <span class="kpi-state">NOMINAL</span>
+          </div>
+          <div>
+            <span class="kpi-value">1.4</span><span class="kpi-value-unit">×10⁻⁹</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LINE CHART · SIGNAL STRENGTH -->
+    <section class="module col-3">
+      <div class="module-masthead module-masthead-secondary">
+        <h2 class="title-friendly title-friendly-md">signal strength · pass</h2>
+        <span class="module-aux">12 MIN 18 SEC</span>
+      </div>
+      <div class="module-body">
+        <svg class="chart-surface" viewBox="0 0 600 280" preserveAspectRatio="xMidYMid meet" aria-label="Signal strength over satellite pass">
+          <!-- Horizontal gridlines + dBm labels -->
+          <line class="chart-grid-line" x1="55" y1="30"  x2="585" y2="30"  />
+          <line class="chart-grid-line" x1="55" y1="80"  x2="585" y2="80"  />
+          <line class="chart-grid-line" x1="55" y1="130" x2="585" y2="130" />
+          <line class="chart-grid-line" x1="55" y1="180" x2="585" y2="180" />
+          <line class="chart-grid-line" x1="55" y1="230" x2="585" y2="230" />
+
+          <text class="chart-axis-label" x="48" y="33"  text-anchor="end">−60</text>
+          <text class="chart-axis-label" x="48" y="83"  text-anchor="end">−70</text>
+          <text class="chart-axis-label" x="48" y="133" text-anchor="end">−80</text>
+          <text class="chart-axis-label" x="48" y="183" text-anchor="end">−90</text>
+          <text class="chart-axis-label" x="48" y="233" text-anchor="end">−100</text>
+
+          <text class="chart-axis-label" x="22" y="135" text-anchor="middle" transform="rotate(-90 22 135)">dBm</text>
+
+          <!-- AOS / MID / LOS reference lines -->
+          <line class="chart-aos-los" x1="60"  y1="20" x2="60"  y2="230" />
+          <line class="chart-aos-los" x1="320" y1="20" x2="320" y2="230" />
+          <line class="chart-aos-los" x1="580" y1="20" x2="580" y2="230" />
+
+          <text class="chart-axis-label" x="60"  y="252" text-anchor="middle">AOS · 19:42:18Z</text>
+          <text class="chart-axis-label" x="320" y="252" text-anchor="middle">CULMINATION · 19:48:27Z</text>
+          <text class="chart-axis-label" x="580" y="252" text-anchor="middle">LOS · 19:54:36Z</text>
+
+          <!-- Signal trace -->
+          <path class="chart-line" d="M 60,205 L 82,198 L 103,192 L 125,181 L 147,172 L 168,153 L 190,141 L 212,127 L 233,112 L 255,96 L 277,89 L 298,79 L 320,70 L 342,74 L 363,84 L 385,91 L 407,104 L 428,120 L 450,131 L 472,147 L 493,159 L 515,177 L 537,187 L 558,199 L 580,201" />
+
+          <!-- Peak marker (stencil-style label) -->
+          <circle class="chart-marker-peak" cx="320" cy="70" r="3" />
+          <line class="chart-grid-line" x1="320" y1="70" x2="320" y2="55" />
+          <text class="chart-axis-label" x="320" y="48" text-anchor="middle" style="fill: var(--text); letter-spacing: 0.14em;">PEAK −68.4</text>
+
+          <!-- Packet loss event marker (warning pip) -->
+          <line class="chart-grid-line" x1="450" y1="20" x2="450" y2="230" style="stroke: var(--warning); stroke-dasharray: 1 3; opacity: 0.5;" />
+          <rect x="447" y="14" width="6" height="6" style="fill: var(--warning);" />
+        </svg>
+      </div>
+    </section>
+
+    <!-- BAR CHART · CHANNEL UTILIZATION -->
+    <section class="module col-3">
+      <div class="module-masthead module-masthead-secondary">
+        <h2 class="title-friendly title-friendly-md">channel utilization</h2>
+        <span class="module-aux">PCT</span>
+      </div>
+      <div class="module-body">
+        <svg class="chart-surface" viewBox="0 0 500 260" preserveAspectRatio="xMidYMid meet" aria-label="Channel utilization across 9 channels">
+          <!-- Y-axis tick labels -->
+          <text class="chart-axis-label" x="22" y="33"  text-anchor="end">100</text>
+          <text class="chart-axis-label" x="22" y="78"  text-anchor="end">75</text>
+          <text class="chart-axis-label" x="22" y="123" text-anchor="end">50</text>
+          <text class="chart-axis-label" x="22" y="168" text-anchor="end">25</text>
+          <text class="chart-axis-label" x="22" y="213" text-anchor="end">0</text>
+
+          <!-- Horizontal gridlines -->
+          <line class="chart-grid-line" x1="30" y1="30"  x2="470" y2="30"  />
+          <line class="chart-grid-line" x1="30" y1="75"  x2="470" y2="75"  style="opacity: 0.5;" />
+          <line class="chart-grid-line" x1="30" y1="120" x2="470" y2="120" style="opacity: 0.5;" />
+          <line class="chart-grid-line" x1="30" y1="165" x2="470" y2="165" style="opacity: 0.5;" />
+
+          <!-- Baseline -->
+          <line class="chart-baseline" x1="30" y1="210" x2="470" y2="210" />
+
+          <!-- Group 1 -->
+          <rect class="chart-bar" x="35"  y="70"  width="35" height="140" />
+          <rect class="chart-bar" x="78"  y="93"  width="35" height="117" />
+          <rect class="chart-bar" x="121" y="62"  width="35" height="148" />
+          <text class="chart-bar-value" x="52"  y="63">78</text>
+          <text class="chart-bar-value" x="95"  y="86">65</text>
+          <text class="chart-bar-value" x="138" y="55">82</text>
+
+          <!-- Group 2 -->
+          <rect class="chart-bar" x="188" y="129" width="35" height="81" />
+          <rect class="chart-bar" x="231" y="118" width="35" height="92" />
+          <rect class="chart-bar" x="274" y="142" width="35" height="68" />
+          <text class="chart-bar-value" x="205" y="122">45</text>
+          <text class="chart-bar-value" x="248" y="111">51</text>
+          <text class="chart-bar-value" x="291" y="135">38</text>
+
+          <!-- Group 3 -->
+          <rect class="chart-bar" x="341" y="46" width="35" height="164" />
+          <rect class="chart-bar selected" x="384" y="53" width="35" height="157" />
+          <rect class="chart-bar" x="427" y="68" width="35" height="142" />
+          <text class="chart-bar-value" x="358" y="39">91</text>
+          <text class="chart-bar-value" x="401" y="46" style="fill: var(--text); font-weight: 600;">87</text>
+          <text class="chart-bar-value" x="444" y="61">79</text>
+
+          <!-- X-axis labels -->
+          <text class="chart-axis-label" x="52"  y="226" text-anchor="middle">CH-01</text>
+          <text class="chart-axis-label" x="95"  y="226" text-anchor="middle">CH-02</text>
+          <text class="chart-axis-label" x="138" y="226" text-anchor="middle">CH-03</text>
+          <text class="chart-axis-label" x="205" y="226" text-anchor="middle">CH-04</text>
+          <text class="chart-axis-label" x="248" y="226" text-anchor="middle">CH-05</text>
+          <text class="chart-axis-label" x="291" y="226" text-anchor="middle">CH-06</text>
+          <text class="chart-axis-label" x="358" y="226" text-anchor="middle">CH-07</text>
+          <text class="chart-axis-label" x="401" y="226" text-anchor="middle">CH-08</text>
+          <text class="chart-axis-label" x="444" y="226" text-anchor="middle">CH-09</text>
+
+          <!-- Group dividers — octal triple bracket marks -->
+          <text class="chart-axis-label" x="95"  y="246" text-anchor="middle" style="opacity: 0.5;">GROUP A</text>
+          <text class="chart-axis-label" x="248" y="246" text-anchor="middle" style="opacity: 0.5;">GROUP B</text>
+          <text class="chart-axis-label" x="401" y="246" text-anchor="middle" style="opacity: 0.5;">GROUP C</text>
+        </svg>
+      </div>
+    </section>
+
+    <!-- REGISTERS (DSKY-style) -->
+    <section class="module col-9">
+      <div class="module-masthead module-masthead-primary">
+        <h2 class="title-friendly title-friendly-md">registers</h2>
+        <span class="module-aux">10 OF 10 ACQUIRED · NOUN 16 — 25</span>
+      </div>
+      <div class="module-body">
+        <div class="register-grid">
+          <div class="register-row">
+            <span class="register-name">NOUN 16</span>
+            <span class="register-value">+000.00</span>
+            <span class="register-unit">ALTITUDE · KM</span>
+          </div>
+          <div class="register-row">
+            <span class="register-name">NOUN 17</span>
+            <span class="register-value">+07.852</span>
+            <span class="register-unit">VELOCITY · KM/S</span>
+          </div>
+          <div class="register-row">
+            <span class="register-name">NOUN 18</span>
+            <span class="register-value">+287.34</span>
+            <span class="register-unit">AZIMUTH · DEG</span>
+          </div>
+          <div class="register-row">
+            <span class="register-name">NOUN 19</span>
+            <span class="register-value">+067.21</span>
+            <span class="register-unit">ELEVATION · DEG</span>
+          </div>
+          <div class="register-row">
+            <span class="register-name">NOUN 20</span>
+            <span class="register-value">−02.418</span>
+            <span class="register-unit">DOPPLER · KHZ</span>
+          </div>
+          <div class="register-row">
+            <span class="register-name">NOUN 21</span>
+            <span class="register-value">+098.7</span>
+            <span class="register-unit">LINK MARGIN · DB</span>
+          </div>
+          <div class="register-row">
+            <span class="register-name">NOUN 22</span>
+            <span class="register-value">0.0192</span>
+            <span class="register-unit">PACKET LOSS · %</span>
+          </div>
+          <div class="register-row">
+            <span class="register-name">NOUN 23</span>
+            <span class="register-value">1.4×10⁻⁹</span>
+            <span class="register-unit">BIT ERROR RATE</span>
+          </div>
+          <div class="register-row">
+            <span class="register-name">NOUN 24</span>
+            <span class="register-value">00:12:18</span>
+            <span class="register-unit">PASS DURATION</span>
+          </div>
+          <div class="register-row">
+            <span class="register-name">NOUN 25</span>
+            <span class="register-value">487.34</span>
+            <span class="register-unit">DATA RX · MB</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTROLS -->
+    <section class="module col-3">
+      <div class="module-masthead module-masthead-secondary">
+        <h2 class="title-friendly title-friendly-md">controls</h2>
+        <span class="module-aux">DISPLAY</span>
+      </div>
+      <div class="module-body">
+        <div class="switch-group">
+          <button class="switch-cap" data-state="on">TELEMETRY</button>
+          <button class="switch-cap off" data-state="off">ANNOTATE</button>
+          <button class="switch-cap" data-state="on">PREDICT</button>
+        </div>
+        <!-- DEC-RED primary action (appearance #2 of 2) -->
+        <button class="btn-primary">EXPORT SESSION</button>
+
+        <div class="controls-meta">
+          <div class="controls-meta-row">
+            <span class="caps-label">PLAYBACK</span>
+            <span class="caps-value">1×</span>
+          </div>
+          <div class="controls-meta-row">
+            <span class="caps-label">ANNOTATIONS</span>
+            <span class="caps-value">07 OPEN</span>
+          </div>
+          <div class="controls-meta-row">
+            <span class="caps-label">CHECKSUM</span>
+            <span class="caps-value">OK · 0X4E2B</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- EVENTS LOG -->
+    <section class="module col-6">
+      <div class="module-masthead module-masthead-secondary">
+        <h2 class="title-friendly title-friendly-md">events log</h2>
+        <span class="module-aux">08 ENTRIES · ASCENDING</span>
+      </div>
+      <div class="module-body">
+        <table class="events-table">
+          <thead>
+            <tr>
+              <th class="events-mark-col"></th>
+              <th class="events-time">UTC</th>
+              <th>EVENT</th>
+              <th>DETAIL</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="events-mark-col"><span class="event-mark go"></span></td>
+              <td class="events-time">19:42:18Z</td>
+              <td>AOS</td>
+              <td>EL 04° · AZ 287° · DESCENDING</td>
+            </tr>
+            <tr>
+              <td class="events-mark-col"><span class="event-mark"></span></td>
+              <td class="events-time">19:42:24Z</td>
+              <td>CARRIER LOCK</td>
+              <td>SYNC DETECTED · CH-01</td>
+            </tr>
+            <tr>
+              <td class="events-mark-col"><span class="event-mark"></span></td>
+              <td class="events-time">19:43:02Z</td>
+              <td>FRAME SYNC</td>
+              <td>CH-08 SELECTED · MARGIN +98.7 DB</td>
+            </tr>
+            <tr>
+              <td class="events-mark-col"><span class="event-mark"></span></td>
+              <td class="events-time">19:46:15Z</td>
+              <td>CULMINATION</td>
+              <td>EL 67.21° · PEAK −68.4 DBM</td>
+            </tr>
+            <tr>
+              <td class="events-mark-col"><span class="event-mark"></span></td>
+              <td class="events-time">19:50:47Z</td>
+              <td>DOPPLER SHIFT</td>
+              <td>−2.418 KHZ · WITHIN TOLERANCE</td>
+            </tr>
+            <tr>
+              <td class="events-mark-col"><span class="event-mark warn"></span></td>
+              <td class="events-time">19:52:33Z</td>
+              <td>PACKET LOSS BURST</td>
+              <td>12 FRAMES · CH-08 · RECOVERED</td>
+            </tr>
+            <tr>
+              <td class="events-mark-col"><span class="event-mark"></span></td>
+              <td class="events-time">19:54:36Z</td>
+              <td>LOS</td>
+              <td>EL 03° · AZ 094° · NOMINAL</td>
+            </tr>
+            <tr>
+              <td class="events-mark-col"><span class="event-mark"></span></td>
+              <td class="events-time">19:54:42Z</td>
+              <td>SESSION CLOSE</td>
+              <td>CARRIER UNLOCK · 487.34 MB RX</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="footer">
+    <span class="caps-label">PACIFIC GROUND STATION · TS-03 · 21.3069°N 157.8583°W</span>
+    <span class="caps-label">ARCHIVE BUILD 2026.05.17 · INTEGRITY OK</span>
+    <span class="caps-label">SESSION 1473 OF 1473</span>
+  </footer>
+</div>
+
+<script>
+  // Pink switch caps toggle (matte state swap, no animation beyond instant)
+  document.querySelectorAll('.switch-cap').forEach(cap => {
+    cap.addEventListener('click', () => {
+      cap.classList.toggle('off');
+    });
+  });
+</script>
+</body>
+</html>

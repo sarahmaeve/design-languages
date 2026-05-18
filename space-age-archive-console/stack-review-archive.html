@@ -1,0 +1,1612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stack Review Archive — payments-service / FEAT-2871</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Jost:wght@400;500&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+  :root {
+    --primary: #604041;
+    --secondary: #7E635F;
+    --accent: #D34B46;
+    --background: #1F1C1A;
+    --surface: #2F2E2D;
+    --text: #E6D2BE;
+    --muted: #AF988F;
+    --border: #3A312E;
+    --error: #D34B46;
+    --success: #6F8A6F;
+    --warning: #E48282;
+    --info: #7E635F;
+
+    --hover-tint: rgba(96, 64, 65, 0.08);
+    --active-tint: rgba(96, 64, 65, 0.10);
+    --switch-off-bg: #9C6868;
+    --pink-text: #5A2828;
+    --pink-text-muted: #4A2A2A;
+
+    --font-display: 'Jost', 'Futura', 'Avenir', sans-serif;
+    --font-body: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+    --font-mono: 'IBM Plex Mono', 'JetBrains Mono', 'Courier New', monospace;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+
+  body {
+    background: var(--background);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.55;
+    min-height: 100vh;
+    background-image:
+      radial-gradient(ellipse 1200px 600px at 50% -200px, rgba(96,64,65,0.06), transparent 70%);
+  }
+
+  .ambient { max-width: 1320px; margin: 0 auto; padding: 36px 24px 28px; }
+
+  /* ============ MASTHEAD ============ */
+  .masthead {
+    background: var(--primary);
+    padding: 18px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 28px;
+    border: 1px solid var(--border);
+    border-bottom: none;
+  }
+
+  .title-friendly {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 1.95rem;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    color: var(--text);
+    text-transform: lowercase;
+    margin: 0;
+  }
+  .title-friendly-md { font-size: 1.0625rem; line-height: 1.25; }
+
+  .masthead-meta { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+  .meta-block { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+
+  .caps-label {
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text);
+    opacity: 0.68;
+  }
+  .caps-value {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text);
+  }
+
+  .stencil { color: transparent; -webkit-text-stroke: 1px var(--text); }
+
+  /* ============ INDICATOR PIPS ============ */
+  .pip-cluster { display: flex; align-items: center; gap: 5px; }
+  .pip {
+    display: inline-block;
+    width: 7px; height: 7px;
+    border-radius: 9999px;
+    background: var(--secondary);
+    box-shadow: inset 0 0 0 1px var(--border);
+    flex-shrink: 0;
+  }
+  .pip.on { background: var(--text); box-shadow: inset 0 0 0 1px rgba(0,0,0,0.2); }
+  .pip.warn { background: var(--warning); }
+  .pip.go { background: var(--success); }
+  .pip-label {
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text);
+    margin-right: 10px;
+  }
+  .pip-label:last-child { margin-right: 0; }
+
+  /* ============ DEC-RED STRIPE ============ */
+  .accent-stripe { height: 3px; background: var(--accent); }
+
+  /* ============ SUB-NAV ============ */
+  .subnav {
+    background: var(--secondary);
+    display: flex;
+    gap: 28px;
+    padding: 12px 28px;
+    border: 1px solid var(--border);
+    border-top: none;
+    flex-wrap: wrap;
+  }
+  .subnav-item {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    color: var(--text);
+    text-transform: uppercase;
+    cursor: pointer;
+    text-decoration: none;
+    padding: 2px 0;
+  }
+  .subnav-item:not(.active) { opacity: 0.75; }
+  .subnav-item:not(.active):hover { opacity: 1; }
+  .subnav-item.active {
+    color: transparent;
+    -webkit-text-stroke: 1px var(--text);
+    opacity: 1;
+  }
+
+  /* ============ GRID ============ */
+  .content-grid {
+    margin-top: 20px;
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    gap: 20px;
+  }
+  .module {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+  .col-3 { grid-column: span 3; }
+  .col-6 { grid-column: span 6; }
+  .col-9 { grid-column: span 9; }
+
+  .module-masthead {
+    padding: 10px 18px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .module-masthead-primary { background: var(--primary); }
+  .module-masthead-secondary { background: var(--secondary); }
+  .module-body { padding: 18px; flex: 1; }
+  .module-body-tight { padding: 14px 18px; }
+  .module-body-flush { padding: 0; flex: 1; }
+
+  .module-aux {
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text);
+    opacity: 0.78;
+  }
+  .module-aux.warn { color: var(--warning); opacity: 1; }
+  .module-aux.go { color: var(--success); opacity: 1; }
+
+  /* ============ STACK VISUALIZER ============ */
+  .stack-list { padding: 0; }
+
+  .stack-pr {
+    display: grid;
+    grid-template-columns: 32px 18px 1fr auto;
+    align-items: start;
+    gap: 10px;
+    padding: 11px 14px 11px 14px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    position: relative;
+  }
+  .stack-pr:last-child { border-bottom: none; }
+  .stack-pr:hover { background: var(--hover-tint); }
+
+  .stack-pr.selected {
+    background: var(--active-tint);
+    border-left: 2px solid var(--text);
+    padding-left: 12px;
+  }
+
+  .stack-pr-index {
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.10em;
+    color: var(--muted);
+    padding: 2px 4px;
+    border: 1px solid var(--border);
+    text-align: center;
+    line-height: 1;
+    align-self: start;
+    margin-top: 1px;
+  }
+  .stack-pr.selected .stack-pr-index {
+    color: var(--text);
+    border-color: var(--secondary);
+  }
+
+  .stack-pr-spine {
+    position: relative;
+    width: 18px;
+    align-self: stretch;
+  }
+  .stack-pr-spine::before {
+    content: "";
+    position: absolute;
+    left: 8px;
+    top: 0;
+    bottom: -11px;
+    width: 1px;
+    background: var(--muted);
+  }
+  .stack-pr:last-child .stack-pr-spine::before { bottom: 9px; }
+  .stack-pr:first-child .stack-pr-spine::before { top: 9px; }
+
+  .stack-pr-node {
+    position: absolute;
+    left: 4px;
+    top: 4px;
+    width: 9px;
+    height: 9px;
+    background: var(--surface);
+    border: 1px solid var(--muted);
+  }
+  .stack-pr.merged .stack-pr-node {
+    background: var(--text);
+    border-color: var(--text);
+  }
+  .stack-pr.approved .stack-pr-node {
+    background: var(--text);
+    border-color: var(--text);
+  }
+  .stack-pr.selected .stack-pr-node {
+    background: var(--accent);
+    border-color: var(--accent);
+    width: 11px;
+    height: 11px;
+    left: 3px;
+    top: 3px;
+  }
+  .stack-pr.review .stack-pr-node {
+    background: var(--warning);
+    border-color: var(--warning);
+  }
+  .stack-pr.draft .stack-pr-node {
+    background: var(--surface);
+    border-color: var(--muted);
+  }
+
+  .stack-pr-content { min-width: 0; }
+
+  .stack-pr-title {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.03em;
+    color: var(--text);
+    line-height: 1.35;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .stack-pr-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 0.5625rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .stack-pr-status { color: var(--text); }
+  .stack-pr-status.merged { color: var(--muted); }
+  .stack-pr-status.approved { color: var(--success); }
+  .stack-pr-status.review { color: var(--warning); }
+  .stack-pr-status.draft { color: var(--muted); }
+
+  .stack-pr-stats {
+    font-family: var(--font-mono);
+    font-size: 0.5625rem;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    text-align: right;
+    padding-top: 3px;
+    white-space: nowrap;
+  }
+  .stack-pr-stats .added { color: var(--success); }
+  .stack-pr-stats .removed { color: var(--warning); }
+
+  .stack-pointer {
+    position: absolute;
+    right: -10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: var(--font-mono);
+    color: var(--text);
+    font-size: 0.625rem;
+  }
+
+  /* ============ PR DETAIL CARD ============ */
+  .pr-title {
+    font-family: var(--font-mono);
+    font-size: 0.95rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    color: var(--text);
+    line-height: 1.4;
+    margin-bottom: 6px;
+  }
+
+  .pr-subtitle {
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+
+  .pr-description {
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    line-height: 1.55;
+    color: var(--text);
+    opacity: 0.85;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 14px;
+  }
+
+  .pr-vitals-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 12px;
+    margin-bottom: 14px;
+  }
+
+  .pr-vital {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 0 12px 0 0;
+    border-right: 1px solid var(--border);
+  }
+  .pr-vital:nth-child(3n) { border-right: none; padding-right: 0; }
+  .pr-vital:nth-child(n+4) { padding-top: 12px; margin-top: 12px; border-top: 1px solid var(--border); }
+
+  .pr-vital-label {
+    font-family: var(--font-mono);
+    font-size: 0.5625rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .pr-vital-value {
+    font-family: var(--font-mono);
+    font-size: 1.0625rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    color: var(--text);
+    line-height: 1;
+  }
+  .pr-vital-value.warn { color: var(--warning); }
+  .pr-vital-value .added { color: var(--success); }
+  .pr-vital-value .removed { color: var(--warning); }
+
+  .pr-vital-aux {
+    font-family: var(--font-mono);
+    font-size: 0.5625rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .pr-section-title {
+    font-family: var(--font-mono);
+    font-size: 0.5625rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .pr-reviewer-list { margin-bottom: 14px; }
+
+  .pr-reviewer {
+    display: grid;
+    grid-template-columns: 16px 1fr auto auto;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--font-mono);
+  }
+  .pr-reviewer:last-child { border-bottom: none; }
+
+  .pr-reviewer-name {
+    font-size: 0.6875rem;
+    letter-spacing: 0.04em;
+    color: var(--text);
+  }
+  .pr-reviewer-state {
+    font-size: 0.5625rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .pr-reviewer-state.approved { color: var(--success); }
+  .pr-reviewer-state.changes { color: var(--warning); }
+
+  .pr-reviewer-time {
+    font-size: 0.5625rem;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .pr-checks-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px 18px;
+    padding-top: 8px;
+  }
+  .pr-check {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-family: var(--font-mono);
+    font-size: 0.5625rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .pr-check-label { color: var(--muted); }
+  .pr-check-state { color: var(--text); }
+  .pr-check-state.warn { color: var(--warning); }
+  .pr-check-state.go { color: var(--success); }
+
+  /* ============ DIFF VIEW ============ */
+  .diff-file-list {
+    border-bottom: 1px solid var(--secondary);
+  }
+
+  .diff-file-row {
+    display: grid;
+    grid-template-columns: 18px 1fr auto;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 18px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    font-family: var(--font-mono);
+  }
+  .diff-file-row:last-child { border-bottom: none; }
+  .diff-file-row:hover { background: var(--hover-tint); }
+  .diff-file-row.open { background: var(--active-tint); }
+
+  .diff-file-toggle {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--muted);
+    text-align: center;
+  }
+  .diff-file-row:hover .diff-file-toggle,
+  .diff-file-row.open .diff-file-toggle { color: var(--text); }
+
+  .diff-file-path {
+    font-size: 0.75rem;
+    letter-spacing: 0.02em;
+    color: var(--text);
+  }
+  .diff-file-stats {
+    font-size: 0.625rem;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+  .diff-file-stats .added { color: var(--success); }
+  .diff-file-stats .removed { color: var(--warning); }
+
+  .diff-content {
+    display: none;
+    background: var(--background);
+    border-bottom: 1px solid var(--border);
+    border-left: 2px solid var(--accent);
+  }
+  .diff-file-row.open + .diff-content { display: block; }
+
+  .diff-hunk-header {
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+    padding: 8px 18px;
+    background: rgba(96, 64, 65, 0.05);
+    border-bottom: 1px solid var(--border);
+    border-top: 1px solid var(--border);
+  }
+  .diff-hunk-header:first-child { border-top: none; }
+
+  .diff-lines {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    line-height: 1.55;
+  }
+
+  .diff-line {
+    display: grid;
+    grid-template-columns: 40px 40px 18px 1fr;
+    align-items: baseline;
+  }
+
+  .diff-line-num {
+    color: var(--muted);
+    text-align: right;
+    padding-right: 6px;
+    font-size: 0.625rem;
+    user-select: none;
+  }
+  .diff-line-prefix {
+    text-align: center;
+    color: var(--muted);
+    font-weight: 500;
+    user-select: none;
+  }
+  .diff-line-content {
+    color: var(--text);
+    white-space: pre;
+    padding-left: 6px;
+    padding-right: 12px;
+    overflow-x: auto;
+  }
+
+  .diff-line.added { background: rgba(111, 138, 111, 0.10); }
+  .diff-line.added .diff-line-prefix { color: var(--success); }
+  .diff-line.removed { background: rgba(228, 130, 130, 0.08); }
+  .diff-line.removed .diff-line-prefix { color: var(--warning); }
+  .diff-line.removed .diff-line-content { color: var(--muted); }
+
+  .diff-line-comment-anchor {
+    grid-column: 1 / -1;
+    padding: 4px 18px 8px 96px;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+  .diff-line-comment-anchor-label {
+    font-family: var(--font-mono);
+    font-size: 0.5625rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--warning);
+  }
+
+  /* ============ COMMENT THREADS ============ */
+  .thread-list { display: flex; flex-direction: column; }
+
+  .thread {
+    border-bottom: 1px solid var(--border);
+    padding: 14px 0;
+  }
+  .thread:first-child { padding-top: 0; }
+  .thread:last-child { border-bottom: none; padding-bottom: 0; }
+
+  .thread-context {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+  .thread-context-path {
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .thread-context-state {
+    font-family: var(--font-mono);
+    font-size: 0.5625rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border: 1px solid var(--muted);
+    color: var(--muted);
+  }
+  .thread-context-state.warn { color: var(--warning); border-color: var(--warning); }
+  .thread-context-state.go { color: var(--success); border-color: var(--success); }
+
+  .comment {
+    border-left: 1px solid var(--border);
+    padding-left: 14px;
+    margin-bottom: 12px;
+  }
+  .comment:last-child { margin-bottom: 0; }
+  .comment.author { border-left-color: var(--text); }
+
+  .comment-header {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 6px;
+    flex-wrap: wrap;
+  }
+  .comment-author {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text);
+  }
+  .comment-author-tag {
+    font-family: var(--font-mono);
+    font-size: 0.5625rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .comment-time {
+    font-family: var(--font-mono);
+    font-size: 0.5625rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .comment-state {
+    font-family: var(--font-mono);
+    font-size: 0.5625rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .comment-state.changes { color: var(--warning); }
+  .comment-state.approved { color: var(--success); }
+
+  .comment-body {
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    line-height: 1.55;
+    color: var(--text);
+  }
+  .comment-body code {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    background: var(--background);
+    padding: 1px 5px;
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+
+  /* ============ CONTROLS ============ */
+  .switch-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 18px;
+  }
+  .switch-cap {
+    background: var(--warning);
+    padding: 12px 12px 10px;
+    cursor: pointer;
+    border: none;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--pink-text);
+    font-weight: 600;
+    flex: 1;
+    min-width: 50px;
+    text-align: center;
+    box-shadow: inset 0 -2px 0 rgba(0,0,0,0.18);
+    outline: 2px solid var(--text);
+    outline-offset: -5px;
+    border-radius: 0;
+  }
+  .switch-cap.off {
+    outline: 2px solid transparent;
+    background: var(--switch-off-bg);
+    color: var(--pink-text-muted);
+    box-shadow: inset 0 -2px 0 rgba(0,0,0,0.35);
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: var(--text);
+    padding: 13px 22px 11px;
+    border: none;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 0;
+    width: 100%;
+    box-shadow: inset 0 -2px 0 rgba(0,0,0,0.22);
+  }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--text);
+    padding: 11px 14px 9px;
+    border: 1px solid var(--border);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 0;
+    width: 100%;
+    margin-top: 8px;
+  }
+  .btn-secondary:hover { border-color: var(--text); }
+
+  .controls-meta {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+  }
+  .controls-meta-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 4px 0;
+    gap: 12px;
+  }
+
+  /* ============ ACTIVITY LOG ============ */
+  .activity-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-mono);
+  }
+  .activity-table th {
+    text-align: left;
+    padding: 0 4px 8px;
+    font-size: 0.5625rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 500;
+    border-bottom: 1px solid var(--secondary);
+  }
+
+  .activity-time-col { width: 110px; }
+  .activity-pr-col { width: 60px; }
+  .activity-mark-col { width: 18px; }
+  .activity-toggle-col { width: 16px; text-align: center; }
+
+  .activity-row { cursor: pointer; }
+  .activity-row > td {
+    padding: 8px 4px;
+    font-size: 0.6875rem;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    color: var(--text);
+    border-bottom: 1px solid var(--border);
+    vertical-align: baseline;
+  }
+  .activity-row:hover > td { background: var(--hover-tint); }
+  .activity-row.open > td { background: var(--active-tint); }
+  .activity-row > td.activity-time-col { color: var(--muted); }
+  .activity-row > td.activity-pr-col { color: var(--muted); }
+
+  .event-mark {
+    display: inline-block;
+    width: 8px; height: 8px;
+    background: var(--text);
+    vertical-align: middle;
+  }
+  .event-mark.warn { background: var(--warning); }
+  .event-mark.go { background: var(--success); }
+  .event-mark.mute { background: var(--muted); }
+
+  .activity-toggle { color: var(--muted); font-family: var(--font-mono); font-size: 0.75rem; }
+  .activity-row:hover .activity-toggle,
+  .activity-row.open .activity-toggle { color: var(--text); }
+
+  .activity-drilldown { display: none; }
+  .activity-drilldown > td {
+    padding: 0 !important;
+    border: none !important;
+  }
+  .activity-table .activity-row.open + .activity-drilldown { display: table-row; }
+
+  .drilldown {
+    background: var(--background);
+    border-bottom: 1px solid var(--border);
+    border-left: 2px solid var(--accent);
+    padding: 14px 18px;
+  }
+
+  .drilldown-grid {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 5px 18px;
+    font-family: var(--font-mono);
+  }
+  .drilldown-key {
+    font-size: 0.625rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding-top: 1px;
+  }
+  .drilldown-val {
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    color: var(--text);
+  }
+  .drilldown-link {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.04em;
+    color: var(--text);
+    text-decoration: none;
+    border-bottom: 1px dashed var(--muted);
+    padding-bottom: 1px;
+  }
+  .drilldown-link:hover { border-bottom-style: solid; }
+
+  /* ============ FOOTER ============ */
+  .footer {
+    background: var(--secondary);
+    padding: 13px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    border: 1px solid var(--border);
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width: 1180px) {
+    .content-grid { grid-template-columns: repeat(6, 1fr); }
+    .col-3 { grid-column: span 3; }
+    .col-6 { grid-column: span 6; }
+    .col-9 { grid-column: span 6; }
+  }
+  @media (max-width: 900px) {
+    .masthead, .subnav, .footer { padding-left: 20px; padding-right: 20px; }
+    .masthead { flex-wrap: wrap; }
+    .pr-vitals-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 700px) {
+    .content-grid { grid-template-columns: 1fr; }
+    .col-3, .col-6, .col-9 { grid-column: span 1; }
+    .ambient { padding: 24px 16px; }
+    .title-friendly { font-size: 1.5rem; }
+    .pr-vitals-grid { grid-template-columns: 1fr; }
+    .diff-line-content { font-size: 0.6875rem; }
+  }
+</style>
+</head>
+<body>
+<div class="ambient">
+
+  <!-- ============ MASTHEAD ============ -->
+  <header class="masthead">
+    <h1 class="title-friendly">stack review archive</h1>
+    <div class="masthead-meta">
+      <div class="meta-block">
+        <span class="caps-label">REPO</span>
+        <span class="caps-value">payments-service</span>
+      </div>
+      <div class="meta-block">
+        <span class="caps-label">STACK</span>
+        <span class="caps-value"><span class="stencil">FEAT-2871</span> · 05 PRS</span>
+      </div>
+      <div class="meta-block">
+        <span class="caps-label">AUTHOR</span>
+        <span class="caps-value">d.kim@commerce</span>
+      </div>
+      <div class="pip-cluster">
+        <span class="pip on"></span><span class="pip-label">BUILD</span>
+        <span class="pip on"></span><span class="pip-label">TEST</span>
+        <span class="pip warn"></span><span class="pip-label">SEC</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="accent-stripe"></div>
+
+  <!-- ============ SUB-NAV ============ -->
+  <nav class="subnav">
+    <a class="subnav-item">STACKS</a>
+    <a class="subnav-item active">REVIEW</a>
+    <a class="subnav-item">DIFF</a>
+    <a class="subnav-item">DISCUSSION</a>
+    <a class="subnav-item">CHECKS</a>
+    <a class="subnav-item">ACTIVITY</a>
+  </nav>
+
+  <!-- ============ CONTENT GRID ============ -->
+  <main class="content-grid">
+
+    <!-- STACK VISUALIZER -->
+    <section class="module col-3">
+      <div class="module-masthead module-masthead-primary">
+        <h2 class="title-friendly title-friendly-md">stack</h2>
+        <span class="module-aux">05 PRS · 03 SELECTED</span>
+      </div>
+      <div class="module-body-flush">
+        <div class="stack-list">
+          <div class="stack-pr merged">
+            <span class="stack-pr-index">01</span>
+            <span class="stack-pr-spine"><span class="stack-pr-node"></span></span>
+            <div class="stack-pr-content">
+              <div class="stack-pr-title">feat(payments): add rate-limit schema</div>
+              <div class="stack-pr-meta">
+                <span class="stack-pr-status merged">MERGED</span>
+                <span>2 D AGO</span>
+              </div>
+            </div>
+            <div class="stack-pr-stats">
+              <span class="added">+47</span> <span class="removed">−3</span>
+            </div>
+          </div>
+
+          <div class="stack-pr approved">
+            <span class="stack-pr-index">02</span>
+            <span class="stack-pr-spine"><span class="stack-pr-node"></span></span>
+            <div class="stack-pr-content">
+              <div class="stack-pr-title">feat(payments): wire token-bucket library</div>
+              <div class="stack-pr-meta">
+                <span class="stack-pr-status approved">APPROVED</span>
+                <span>READY</span>
+              </div>
+            </div>
+            <div class="stack-pr-stats">
+              <span class="added">+124</span> <span class="removed">−8</span>
+            </div>
+          </div>
+
+          <div class="stack-pr selected review">
+            <span class="stack-pr-index">03</span>
+            <span class="stack-pr-spine"><span class="stack-pr-node"></span></span>
+            <div class="stack-pr-content">
+              <div class="stack-pr-title">feat(payments): per-customer limit config</div>
+              <div class="stack-pr-meta">
+                <span class="stack-pr-status review">IN REVIEW</span>
+                <span>1 / 2 · 03 OPEN</span>
+              </div>
+            </div>
+            <div class="stack-pr-stats">
+              <span class="added">+89</span> <span class="removed">−12</span>
+            </div>
+            <span class="stack-pointer">◀</span>
+          </div>
+
+          <div class="stack-pr review">
+            <span class="stack-pr-index">04</span>
+            <span class="stack-pr-spine"><span class="stack-pr-node"></span></span>
+            <div class="stack-pr-content">
+              <div class="stack-pr-title">feat(payments): integrate into charge</div>
+              <div class="stack-pr-meta">
+                <span class="stack-pr-status review">IN REVIEW</span>
+                <span>0 REVIEWS</span>
+              </div>
+            </div>
+            <div class="stack-pr-stats">
+              <span class="added">+156</span> <span class="removed">−24</span>
+            </div>
+          </div>
+
+          <div class="stack-pr draft">
+            <span class="stack-pr-index">05</span>
+            <span class="stack-pr-spine"><span class="stack-pr-node"></span></span>
+            <div class="stack-pr-content">
+              <div class="stack-pr-title">feat(payments): telemetry and alerts</div>
+              <div class="stack-pr-meta">
+                <span class="stack-pr-status draft">DRAFT</span>
+                <span>WIP</span>
+              </div>
+            </div>
+            <div class="stack-pr-stats">
+              <span class="added">+43</span> <span class="removed">−0</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PR DETAIL CARD -->
+    <section class="module col-6">
+      <div class="module-masthead module-masthead-primary">
+        <h2 class="title-friendly title-friendly-md">pr #03 · per-customer limit configuration</h2>
+        <span class="module-aux warn">CHANGES REQUESTED</span>
+      </div>
+      <div class="module-body">
+        <div class="pr-title">feat(payments): add per-customer limit configuration</div>
+        <div class="pr-subtitle">FEAT/PAYMENTS-RATELIMIT-CONFIG → FEAT/PAYMENTS-RATELIMIT-BUCKET · 07 FILES · 03 COMMITS</div>
+
+        <p class="pr-description">
+          Introduces a per-customer rate-limit override on top of the global token-bucket configuration. Defaults remain unchanged; customers without an override hit the default RPS. Overrides carry an <code style="font-family: var(--font-mono); font-size: 0.8em; background: var(--background); padding: 1px 4px; border: 1px solid var(--border);">ExpiresAt</code> so we can run temporary lifts (campaigns, partner ramps) without manual cleanup. Closes FEAT-2871.
+        </p>
+
+        <div class="pr-vitals-grid">
+          <div class="pr-vital">
+            <span class="pr-vital-label">CHANGED</span>
+            <span class="pr-vital-value">07</span>
+            <span class="pr-vital-aux">FILES</span>
+          </div>
+          <div class="pr-vital">
+            <span class="pr-vital-label">DIFF</span>
+            <span class="pr-vital-value"><span class="added">+89</span> <span class="removed">−12</span></span>
+            <span class="pr-vital-aux">LINES</span>
+          </div>
+          <div class="pr-vital">
+            <span class="pr-vital-label">COMMENTS</span>
+            <span class="pr-vital-value warn">12</span>
+            <span class="pr-vital-aux">03 OPEN</span>
+          </div>
+          <div class="pr-vital">
+            <span class="pr-vital-label">REVIEWS</span>
+            <span class="pr-vital-value">1 / 2</span>
+            <span class="pr-vital-aux">APPROVED</span>
+          </div>
+          <div class="pr-vital">
+            <span class="pr-vital-label">OPEN</span>
+            <span class="pr-vital-value">03</span>
+            <span class="pr-vital-aux">DAYS</span>
+          </div>
+          <div class="pr-vital">
+            <span class="pr-vital-label">MERGEABLE</span>
+            <span class="pr-vital-value">CLEAN</span>
+            <span class="pr-vital-aux">NO CONFLICTS</span>
+          </div>
+        </div>
+
+        <div class="pr-section-title">REVIEWERS · 03</div>
+        <div class="pr-reviewer-list">
+          <div class="pr-reviewer">
+            <span class="pip go"></span>
+            <span class="pr-reviewer-name">alice@team</span>
+            <span class="pr-reviewer-state approved">APPROVED</span>
+            <span class="pr-reviewer-time">1 D AGO</span>
+          </div>
+          <div class="pr-reviewer">
+            <span class="pip warn"></span>
+            <span class="pr-reviewer-name">bob@team</span>
+            <span class="pr-reviewer-state changes">CHANGES REQUESTED</span>
+            <span class="pr-reviewer-time">04 H AGO</span>
+          </div>
+          <div class="pr-reviewer">
+            <span class="pip"></span>
+            <span class="pr-reviewer-name">carol@team</span>
+            <span class="pr-reviewer-state">PENDING</span>
+            <span class="pr-reviewer-time">REQUESTED 02 D AGO</span>
+          </div>
+        </div>
+
+        <div class="pr-section-title">CHECKS · 05</div>
+        <div class="pr-checks-row">
+          <div class="pr-check"><span class="pip go"></span><span class="pr-check-label">BUILD</span><span class="pr-check-state go">PASS</span></div>
+          <div class="pr-check"><span class="pip go"></span><span class="pr-check-label">TEST</span><span class="pr-check-state go">PASS · 287</span></div>
+          <div class="pr-check"><span class="pip go"></span><span class="pr-check-label">LINT</span><span class="pr-check-state go">PASS</span></div>
+          <div class="pr-check"><span class="pip warn"></span><span class="pr-check-label">SECURITY</span><span class="pr-check-state warn">1 MEDIUM</span></div>
+          <div class="pr-check"><span class="pip go"></span><span class="pr-check-label">COVERAGE</span><span class="pr-check-state go">89.2 %</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DIFF VIEW -->
+    <section class="module col-9">
+      <div class="module-masthead module-masthead-primary">
+        <h2 class="title-friendly title-friendly-md">diff · pr #03</h2>
+        <span class="module-aux">07 FILES · <span class="added" style="color: var(--success);">+89</span> <span class="removed" style="color: var(--warning);">−12</span> · CLICK FILE TO OPEN</span>
+      </div>
+      <div class="module-body-flush">
+        <div class="diff-file-list">
+          <!-- Auto-open: limits.go -->
+          <div class="diff-file-row open" data-diff-file>
+            <span class="diff-file-toggle">−</span>
+            <span class="diff-file-path">services/payments/limits.go</span>
+            <span class="diff-file-stats"><span class="added">+38</span> <span class="removed">−2</span></span>
+          </div>
+          <div class="diff-content">
+            <div class="diff-hunk-header">@@ -23,8 +23,21 @@ type LimitConfig struct</div>
+            <div class="diff-lines">
+              <div class="diff-line">
+                <span class="diff-line-num">23</span><span class="diff-line-num">23</span><span class="diff-line-prefix"> </span><span class="diff-line-content">    DefaultRPS    int</span>
+              </div>
+              <div class="diff-line">
+                <span class="diff-line-num">24</span><span class="diff-line-num">24</span><span class="diff-line-prefix"> </span><span class="diff-line-content">    BurstSize     int</span>
+              </div>
+              <div class="diff-line added">
+                <span class="diff-line-num"></span><span class="diff-line-num">25</span><span class="diff-line-prefix">+</span><span class="diff-line-content">    // PerCustomerLimits allows overriding the default rate limit</span>
+              </div>
+              <div class="diff-line added">
+                <span class="diff-line-num"></span><span class="diff-line-num">26</span><span class="diff-line-prefix">+</span><span class="diff-line-content">    // for specific customer IDs. Lookups are O(1).</span>
+              </div>
+              <div class="diff-line added">
+                <span class="diff-line-num"></span><span class="diff-line-num">27</span><span class="diff-line-prefix">+</span><span class="diff-line-content">    PerCustomerLimits map[string]*CustomerLimit</span>
+              </div>
+              <div class="diff-line">
+                <span class="diff-line-num">25</span><span class="diff-line-num">28</span><span class="diff-line-prefix"> </span><span class="diff-line-content">}</span>
+              </div>
+              <div class="diff-line">
+                <span class="diff-line-num">26</span><span class="diff-line-num">29</span><span class="diff-line-prefix"> </span><span class="diff-line-content"> </span>
+              </div>
+              <div class="diff-line added">
+                <span class="diff-line-num"></span><span class="diff-line-num">30</span><span class="diff-line-prefix">+</span><span class="diff-line-content">// CustomerLimit defines a per-customer rate limit override.</span>
+              </div>
+              <div class="diff-line added">
+                <span class="diff-line-num"></span><span class="diff-line-num">31</span><span class="diff-line-prefix">+</span><span class="diff-line-content">type CustomerLimit struct {</span>
+              </div>
+              <div class="diff-line added">
+                <span class="diff-line-num"></span><span class="diff-line-num">32</span><span class="diff-line-prefix">+</span><span class="diff-line-content">    RPS       int</span>
+              </div>
+              <div class="diff-line added">
+                <span class="diff-line-num"></span><span class="diff-line-num">33</span><span class="diff-line-prefix">+</span><span class="diff-line-content">    BurstSize int</span>
+              </div>
+              <div class="diff-line-comment-anchor">
+                <span class="diff-line-comment-anchor-label">◇ 02 COMMENTS · LINE 33</span>
+              </div>
+              <div class="diff-line added">
+                <span class="diff-line-num"></span><span class="diff-line-num">34</span><span class="diff-line-prefix">+</span><span class="diff-line-content">    ExpiresAt time.Time</span>
+              </div>
+              <div class="diff-line added">
+                <span class="diff-line-num"></span><span class="diff-line-num">35</span><span class="diff-line-prefix">+</span><span class="diff-line-content">}</span>
+              </div>
+              <div class="diff-line">
+                <span class="diff-line-num">27</span><span class="diff-line-num">36</span><span class="diff-line-prefix"> </span><span class="diff-line-content"> </span>
+              </div>
+            </div>
+
+            <div class="diff-hunk-header">@@ -41,7 +54,16 @@ func (c *LimitConfig) Apply(req *Request) error</div>
+            <div class="diff-lines">
+              <div class="diff-line">
+                <span class="diff-line-num">41</span><span class="diff-line-num">54</span><span class="diff-line-prefix"> </span><span class="diff-line-content">func (c *LimitConfig) Apply(req *Request) error {</span>
+              </div>
+              <div class="diff-line removed">
+                <span class="diff-line-num">42</span><span class="diff-line-num"></span><span class="diff-line-prefix">−</span><span class="diff-line-content">    limit := c.DefaultRPS</span>
+              </div>
+              <div class="diff-line added">
+                <span class="diff-line-num"></span><span class="diff-line-num">55</span><span class="diff-line-prefix">+</span><span class="diff-line-content">    limit := c.lookupLimit(req.CustomerID)</span>
+              </div>
+              <div class="diff-line">
+                <span class="diff-line-num">43</span><span class="diff-line-num">56</span><span class="diff-line-prefix"> </span><span class="diff-line-content">    if !c.bucket.Allow(limit) {</span>
+              </div>
+              <div class="diff-line">
+                <span class="diff-line-num">44</span><span class="diff-line-num">57</span><span class="diff-line-prefix"> </span><span class="diff-line-content">        return ErrRateLimited</span>
+              </div>
+              <div class="diff-line">
+                <span class="diff-line-num">45</span><span class="diff-line-num">58</span><span class="diff-line-prefix"> </span><span class="diff-line-content">    }</span>
+              </div>
+              <div class="diff-line added">
+                <span class="diff-line-num"></span><span class="diff-line-num">59</span><span class="diff-line-prefix">+</span><span class="diff-line-content">    return nil</span>
+              </div>
+              <div class="diff-line">
+                <span class="diff-line-num">46</span><span class="diff-line-num">60</span><span class="diff-line-prefix"> </span><span class="diff-line-content">}</span>
+              </div>
+              <div class="diff-line">
+                <span class="diff-line-num">47</span><span class="diff-line-num">61</span><span class="diff-line-prefix"> </span><span class="diff-line-content"> </span>
+              </div>
+              <div class="diff-line added">
+                <span class="diff-line-num"></span><span class="diff-line-num">62</span><span class="diff-line-prefix">+</span><span class="diff-line-content">func (c *LimitConfig) lookupLimit(customerID string) int {</span>
+              </div>
+              <div class="diff-line added">
+                <span class="diff-line-num"></span><span class="diff-line-num">63</span><span class="diff-line-prefix">+</span><span class="diff-line-content">    if override, ok := c.PerCustomerLimits[customerID]; ok {</span>
+              </div>
+              <div class="diff-line added">
+                <span class="diff-line-num"></span><span class="diff-line-num">64</span><span class="diff-line-prefix">+</span><span class="diff-line-content">        if time.Now().Before(override.ExpiresAt) {</span>
+              </div>
+              <div class="diff-line added">
+                <span class="diff-line-num"></span><span class="diff-line-num">65</span><span class="diff-line-prefix">+</span><span class="diff-line-content">            return override.RPS</span>
+              </div>
+              <div class="diff-line added">
+                <span class="diff-line-num"></span><span class="diff-line-num">66</span><span class="diff-line-prefix">+</span><span class="diff-line-content">        }</span>
+              </div>
+              <div class="diff-line added">
+                <span class="diff-line-num"></span><span class="diff-line-num">67</span><span class="diff-line-prefix">+</span><span class="diff-line-content">    }</span>
+              </div>
+              <div class="diff-line added">
+                <span class="diff-line-num"></span><span class="diff-line-num">68</span><span class="diff-line-prefix">+</span><span class="diff-line-content">    return c.DefaultRPS</span>
+              </div>
+              <div class="diff-line added">
+                <span class="diff-line-num"></span><span class="diff-line-num">69</span><span class="diff-line-prefix">+</span><span class="diff-line-content">}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="diff-file-row" data-diff-file>
+            <span class="diff-file-toggle">+</span>
+            <span class="diff-file-path">services/payments/limits_test.go</span>
+            <span class="diff-file-stats"><span class="added">+34</span> <span class="removed">−0</span></span>
+          </div>
+          <div class="diff-content">
+            <div class="diff-hunk-header" style="padding: 14px 18px; color: var(--muted);">— click to expand —</div>
+          </div>
+
+          <div class="diff-file-row" data-diff-file>
+            <span class="diff-file-toggle">+</span>
+            <span class="diff-file-path">services/payments/config.go</span>
+            <span class="diff-file-stats"><span class="added">+8</span> <span class="removed">−1</span></span>
+          </div>
+          <div class="diff-content">
+            <div class="diff-hunk-header" style="padding: 14px 18px; color: var(--muted);">— click to expand —</div>
+          </div>
+
+          <div class="diff-file-row" data-diff-file>
+            <span class="diff-file-toggle">+</span>
+            <span class="diff-file-path">services/payments/types.go</span>
+            <span class="diff-file-stats"><span class="added">+5</span> <span class="removed">−0</span></span>
+          </div>
+          <div class="diff-content">
+            <div class="diff-hunk-header" style="padding: 14px 18px; color: var(--muted);">— click to expand —</div>
+          </div>
+
+          <div class="diff-file-row" data-diff-file>
+            <span class="diff-file-toggle">+</span>
+            <span class="diff-file-path">internal/storage/customer_limits.go</span>
+            <span class="diff-file-stats"><span class="added">+4</span> <span class="removed">−9</span></span>
+          </div>
+          <div class="diff-content">
+            <div class="diff-hunk-header" style="padding: 14px 18px; color: var(--muted);">— click to expand —</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DISCUSSION (COMMENT THREADS) -->
+    <section class="module col-6">
+      <div class="module-masthead module-masthead-secondary">
+        <h2 class="title-friendly title-friendly-md">discussion</h2>
+        <span class="module-aux warn">03 UNRESOLVED · 09 RESOLVED</span>
+      </div>
+      <div class="module-body">
+        <div class="thread-list">
+
+          <div class="thread">
+            <div class="thread-context">
+              <span class="thread-context-path">services/payments/limits.go · LINE 33</span>
+              <span class="thread-context-state warn">UNRESOLVED</span>
+            </div>
+            <div class="comment">
+              <div class="comment-header">
+                <span class="comment-author">bob@team</span>
+                <span class="comment-time">14:18Z · 04 H AGO</span>
+                <span class="comment-state changes">CHANGES REQUESTED</span>
+              </div>
+              <div class="comment-body">
+                Could we use <code>sync.Map</code> here to avoid lock contention? The map is read-heavy at request time and we're already seeing GC pause regressions on the upstream service. Also worth considering whether <code>ExpiresAt</code> should be a pointer so a zero value reads as "never expires" instead of "always expired."
+              </div>
+            </div>
+            <div class="comment author">
+              <div class="comment-header">
+                <span class="comment-author">d.kim@commerce</span>
+                <span class="comment-author-tag">AUTHOR</span>
+                <span class="comment-time">14:24Z · 04 H AGO</span>
+              </div>
+              <div class="comment-body">
+                Good catch on the pointer — pushed 3f7b2a9 to fix. On <code>sync.Map</code>: the access pattern here is overwhelmingly read, write only on config reload (~once per minute), so I think a plain map with a <code>RWMutex</code> wins. Happy to revisit if benchmarks say otherwise.
+              </div>
+            </div>
+            <div class="comment">
+              <div class="comment-header">
+                <span class="comment-author">bob@team</span>
+                <span class="comment-time">14:31Z · 03 H AGO</span>
+              </div>
+              <div class="comment-body">
+                Fair. Could you add a benchmark for the lookup path so we have a baseline if this comes up again? I'll re-review once the benchmark lands.
+              </div>
+            </div>
+          </div>
+
+          <div class="thread">
+            <div class="thread-context">
+              <span class="thread-context-path">services/payments/limits.go · LINE 62</span>
+              <span class="thread-context-state go">RESOLVED · alice@team</span>
+            </div>
+            <div class="comment">
+              <div class="comment-header">
+                <span class="comment-author">alice@team</span>
+                <span class="comment-time">13:04Z · 1 D AGO</span>
+                <span class="comment-state approved">APPROVED</span>
+              </div>
+              <div class="comment-body">
+                The split between <code>Apply</code> and <code>lookupLimit</code> reads clean — nice abstraction. The <code>ExpiresAt</code> guard means we get free cleanup of stale overrides without a sweep job, which is exactly what I'd want.
+              </div>
+            </div>
+          </div>
+
+          <div class="thread">
+            <div class="thread-context">
+              <span class="thread-context-path">internal/storage/customer_limits.go · LINE 18</span>
+              <span class="thread-context-state warn">UNRESOLVED</span>
+            </div>
+            <div class="comment">
+              <div class="comment-header">
+                <span class="comment-author">bob@team</span>
+                <span class="comment-time">14:20Z · 04 H AGO</span>
+              </div>
+              <div class="comment-body">
+                Why drop the schema validation here? The new storage path doesn't enforce that <code>RPS &gt; 0</code> — feels like an easy footgun for whoever writes the next migration.
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTROLS -->
+    <section class="module col-3">
+      <div class="module-masthead module-masthead-secondary">
+        <h2 class="title-friendly title-friendly-md">controls</h2>
+        <span class="module-aux">DISPLAY</span>
+      </div>
+      <div class="module-body">
+        <div class="switch-group">
+          <button class="switch-cap">DIFF</button>
+          <button class="switch-cap">CMNTS</button>
+          <button class="switch-cap off">CHECKS</button>
+        </div>
+        <button class="btn-primary">APPROVE PR #03</button>
+        <button class="btn-secondary">REQUEST CHANGES</button>
+        <button class="btn-secondary">COMMENT ONLY</button>
+
+        <div class="controls-meta">
+          <div class="controls-meta-row">
+            <span class="caps-label">BASE</span>
+            <span class="caps-value">PR #02</span>
+          </div>
+          <div class="controls-meta-row">
+            <span class="caps-label">HEAD</span>
+            <span class="caps-value">3F7B2A9</span>
+          </div>
+          <div class="controls-meta-row">
+            <span class="caps-label">MERGE</span>
+            <span class="caps-value">CLEAN</span>
+          </div>
+          <div class="controls-meta-row">
+            <span class="caps-label">CI</span>
+            <span class="caps-value">04 / 05</span>
+          </div>
+          <div class="controls-meta-row">
+            <span class="caps-label">LANDED BY</span>
+            <span class="caps-value">— · BLOCKED</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ACTIVITY LOG -->
+    <section class="module col-9">
+      <div class="module-masthead module-masthead-secondary">
+        <h2 class="title-friendly title-friendly-md">stack activity</h2>
+        <span class="module-aux">08 EVENTS · DESCENDING · CROSS-STACK</span>
+      </div>
+      <div class="module-body module-body-tight">
+        <table class="activity-table">
+          <thead>
+            <tr>
+              <th class="activity-mark-col"></th>
+              <th class="activity-time-col">UTC</th>
+              <th class="activity-pr-col">PR</th>
+              <th>EVENT</th>
+              <th>DETAIL</th>
+              <th class="activity-toggle-col"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="activity-row" data-drilldown>
+              <td class="activity-mark-col"><span class="event-mark go"></span></td>
+              <td class="activity-time-col">14:34Z</td>
+              <td class="activity-pr-col">#03</td>
+              <td>APPROVED</td>
+              <td>alice@team — "Clean abstraction; ExpiresAt guard is exactly right"</td>
+              <td class="activity-toggle-col"><span class="activity-toggle">+</span></td>
+            </tr>
+            <tr class="activity-drilldown"><td colspan="6">
+              <div class="drilldown">
+                <div class="drilldown-grid">
+                  <span class="drilldown-key">REVIEWER</span><span class="drilldown-val">alice@team · senior</span>
+                  <span class="drilldown-key">DECISION</span><span class="drilldown-val">APPROVED</span>
+                  <span class="drilldown-key">FILES TOUCHED</span><span class="drilldown-val">04 of 07 · skipped test files and migration</span>
+                  <span class="drilldown-key">COMMENTS</span><span class="drilldown-val">03 (all resolved)</span>
+                </div>
+              </div>
+            </td></tr>
+
+            <tr class="activity-row" data-drilldown>
+              <td class="activity-mark-col"><span class="event-mark go"></span></td>
+              <td class="activity-time-col">14:28Z</td>
+              <td class="activity-pr-col">#04</td>
+              <td>CHECKS PASSED</td>
+              <td>build · test · lint · coverage 84.1 %</td>
+              <td class="activity-toggle-col"><span class="activity-toggle">+</span></td>
+            </tr>
+            <tr class="activity-drilldown"><td colspan="6">
+              <div class="drilldown">
+                <div class="drilldown-grid">
+                  <span class="drilldown-key">COMMIT</span><span class="drilldown-val">3f7b2a9 · "switch to pointer ExpiresAt"</span>
+                  <span class="drilldown-key">DURATION</span><span class="drilldown-val">04 min 18 sec</span>
+                  <span class="drilldown-key">PIPELINE</span><span class="drilldown-val">payments-service · prod-ci</span>
+                </div>
+              </div>
+            </td></tr>
+
+            <!-- Auto-expanded: CHANGES REQUESTED -->
+            <tr class="activity-row open" data-drilldown>
+              <td class="activity-mark-col"><span class="event-mark warn"></span></td>
+              <td class="activity-time-col">14:18Z</td>
+              <td class="activity-pr-col">#03</td>
+              <td>CHANGES REQUESTED</td>
+              <td>bob@team — limits.go:33 · sync.Map / pointer ExpiresAt</td>
+              <td class="activity-toggle-col"><span class="activity-toggle">−</span></td>
+            </tr>
+            <tr class="activity-drilldown"><td colspan="6">
+              <div class="drilldown">
+                <div class="drilldown-grid">
+                  <span class="drilldown-key">REVIEWER</span><span class="drilldown-val">bob@team · senior</span>
+                  <span class="drilldown-key">DECISION</span><span class="drilldown-val warn">CHANGES REQUESTED</span>
+                  <span class="drilldown-key">OPEN THREADS</span><span class="drilldown-val">02 (limits.go:33, customer_limits.go:18)</span>
+                  <span class="drilldown-key">RESOLVED</span><span class="drilldown-val">01 (limits.go:62 via 3f7b2a9)</span>
+                  <span class="drilldown-key">FOLLOW-UP</span><span class="drilldown-val">benchmark requested · will re-review when added</span>
+                  <span class="drilldown-key">LINKS</span><span class="drilldown-val"><a class="drilldown-link" href="#">VIEW REVIEW</a> · <a class="drilldown-link" href="#">JUMP TO LINE 33</a></span>
+                </div>
+              </div>
+            </td></tr>
+
+            <tr class="activity-row" data-drilldown>
+              <td class="activity-mark-col"><span class="event-mark"></span></td>
+              <td class="activity-time-col">13:42Z</td>
+              <td class="activity-pr-col">#03</td>
+              <td>PUSHED</td>
+              <td>d.kim@commerce · 03 commits · "switch to pointer ExpiresAt; address review"</td>
+              <td class="activity-toggle-col"><span class="activity-toggle">+</span></td>
+            </tr>
+            <tr class="activity-drilldown"><td colspan="6">
+              <div class="drilldown">
+                <div class="drilldown-grid">
+                  <span class="drilldown-key">COMMITS</span><span class="drilldown-val">3f7b2a9 · 8b4c1fd · a2d9e0c</span>
+                  <span class="drilldown-key">FILES TOUCHED</span><span class="drilldown-val">limits.go · types.go · limits_test.go</span>
+                </div>
+              </div>
+            </td></tr>
+
+            <tr class="activity-row" data-drilldown>
+              <td class="activity-mark-col"><span class="event-mark go"></span></td>
+              <td class="activity-time-col">11:23Z</td>
+              <td class="activity-pr-col">#02</td>
+              <td>APPROVED</td>
+              <td>carol@team — "lgtm, nice library wrapping"</td>
+              <td class="activity-toggle-col"><span class="activity-toggle">+</span></td>
+            </tr>
+            <tr class="activity-drilldown"><td colspan="6">
+              <div class="drilldown">
+                <div class="drilldown-grid">
+                  <span class="drilldown-key">REVIEWER</span><span class="drilldown-val">carol@team</span>
+                  <span class="drilldown-key">DECISION</span><span class="drilldown-val">APPROVED · PR #02 ready to merge</span>
+                </div>
+              </div>
+            </td></tr>
+
+            <tr class="activity-row" data-drilldown>
+              <td class="activity-mark-col"><span class="event-mark warn"></span></td>
+              <td class="activity-time-col">10:17Z</td>
+              <td class="activity-pr-col">#04</td>
+              <td>CHECKS FAILED</td>
+              <td>lint · "unused import: time.Tick" · commit a8c4d1f</td>
+              <td class="activity-toggle-col"><span class="activity-toggle">+</span></td>
+            </tr>
+            <tr class="activity-drilldown"><td colspan="6">
+              <div class="drilldown">
+                <div class="drilldown-grid">
+                  <span class="drilldown-key">PIPELINE</span><span class="drilldown-val">payments-service · prod-ci</span>
+                  <span class="drilldown-key">STAGE</span><span class="drilldown-val warn">LINT · failed in 28 sec</span>
+                  <span class="drilldown-key">RESOLVED BY</span><span class="drilldown-val">commit 3f7b2a9 · 14:28Z</span>
+                </div>
+              </div>
+            </td></tr>
+
+            <tr class="activity-row" data-drilldown>
+              <td class="activity-mark-col"><span class="event-mark mute"></span></td>
+              <td class="activity-time-col">09:42Z</td>
+              <td class="activity-pr-col">#04</td>
+              <td>REBASED</td>
+              <td>d.kim@commerce · onto PR #03 head a2d9e0c</td>
+              <td class="activity-toggle-col"><span class="activity-toggle">+</span></td>
+            </tr>
+            <tr class="activity-drilldown"><td colspan="6">
+              <div class="drilldown">
+                <div class="drilldown-grid">
+                  <span class="drilldown-key">PREVIOUS BASE</span><span class="drilldown-val">PR #03 · head 8b4c1fd (stale)</span>
+                  <span class="drilldown-key">NEW BASE</span><span class="drilldown-val">PR #03 · head a2d9e0c</span>
+                  <span class="drilldown-key">CONFLICTS</span><span class="drilldown-val">none — clean rebase</span>
+                </div>
+              </div>
+            </td></tr>
+
+            <tr class="activity-row" data-drilldown>
+              <td class="activity-mark-col"><span class="event-mark"></span></td>
+              <td class="activity-time-col">2026-05-15</td>
+              <td class="activity-pr-col">#01</td>
+              <td>MERGED</td>
+              <td>squash · "feat(payments): add rate-limit schema" · 47 +3 −</td>
+              <td class="activity-toggle-col"><span class="activity-toggle">+</span></td>
+            </tr>
+            <tr class="activity-drilldown"><td colspan="6">
+              <div class="drilldown">
+                <div class="drilldown-grid">
+                  <span class="drilldown-key">STRATEGY</span><span class="drilldown-val">squash and merge</span>
+                  <span class="drilldown-key">LANDED BY</span><span class="drilldown-val">d.kim@commerce · 16:33Z</span>
+                  <span class="drilldown-key">FOLLOW-UPS</span><span class="drilldown-val">PR #02–05 auto-rebased onto main</span>
+                </div>
+              </div>
+            </td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="footer">
+    <span class="caps-label">PAYMENTS-SERVICE · STACK FEAT-2871 · 03 OF 05 SELECTED</span>
+    <span class="caps-label">REVIEW UI BUILD 2026.05.17 · GRAPHITE-COMPATIBLE</span>
+    <span class="caps-label">STACK 4 OF 12 OPEN · 1473 ARCHIVED</span>
+  </footer>
+</div>
+
+<script>
+  // Switch caps — multi-toggle (display preferences)
+  document.querySelectorAll('.switch-cap').forEach(cap => {
+    cap.addEventListener('click', () => {
+      cap.classList.toggle('off');
+    });
+  });
+
+  // Stack PR selection (visual only — picks one row at a time)
+  document.querySelectorAll('.stack-pr').forEach(pr => {
+    pr.addEventListener('click', () => {
+      document.querySelectorAll('.stack-pr').forEach(p => p.classList.remove('selected'));
+      pr.classList.add('selected');
+    });
+  });
+
+  // Diff file toggle
+  document.querySelectorAll('[data-diff-file]').forEach(row => {
+    row.addEventListener('click', () => {
+      row.classList.toggle('open');
+      const toggle = row.querySelector('.diff-file-toggle');
+      if (toggle) toggle.textContent = row.classList.contains('open') ? '−' : '+';
+    });
+  });
+
+  // Activity drilldowns
+  document.querySelectorAll('[data-drilldown]').forEach(row => {
+    row.addEventListener('click', () => {
+      row.classList.toggle('open');
+      const toggle = row.querySelector('.activity-toggle');
+      if (toggle) toggle.textContent = row.classList.contains('open') ? '−' : '+';
+    });
+  });
+</script>
+</body>
+</html>
